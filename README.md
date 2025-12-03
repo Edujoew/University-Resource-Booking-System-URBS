@@ -1,6 +1,5 @@
 University Resource and Equipment booking system(UREBS)
 ## University-Resource-Booking-System-UREBS
-The University Resource and Equipment Booking System is a straightforward website designed to fix the headache of getting access to essential campus gear and rooms. Every student knows the frustration of needing a specific piece of lab equipment or a quiet group study room, only to find the sign-up
 
 
 ## main.html
@@ -21,8 +20,8 @@ Bootstrap CDN	Why CDN? Using a Content Delivery Network for Bootstrap CSS and JS
 Contextual Welcome	-Why Conditional? The text content adapts based on the user's authentication status. This personalization provides immediate, relevant directions: encouraging new users to log in, and reminding returning users where to find their existing bookings.
 
 ## hompage
+![alt text](homepage.png)
 
-![alt text](image.png)
 
 Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that navigation to the login and register pages works even if the URL structure changes later.
 
@@ -32,16 +31,16 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 {% csrf_token %}	 Mandatory security token. This hidden field prevents Cross-Site Request Forgery (CSRF) attacks, ensuring that the form submission is valid and originated from our application.
 
 ## login page
+![alt text](<login page.png>)
 
-![alt text](image-1.png)
 
 ## logged_out
 
 Template Path	Why templates/registration/logged_out.html? Similar to login.html, this is the default template path expected by Django's built-in LogoutView after a successful logout action.
 
 ## logout button
+![alt text](<logout button.png>)
 
-![alt text](image.png)
 
 alert alert-info	Purpose: Uses Bootstrap components (alerts) to provide a clear, user-friendly, and styled message confirming the logout action.
 
@@ -50,8 +49,8 @@ alert alert-info	Purpose: Uses Bootstrap components (alerts) to provide a clear,
 {% load crispy_forms_tags %}	Purpose: Ensures that when the custom registration view eventually passes a form object (like a UserCreationForm), we can use the `btn btn-primary	Purpose: Uses the primary brand color for the Register button, defining it as the main call-to-action on this page according to Bootstrap styling conventions.
 
 ## registartion page
+![alt text](<registration page.png>)
 
-![alt text](image-1.png)
 
 ## form.py
 

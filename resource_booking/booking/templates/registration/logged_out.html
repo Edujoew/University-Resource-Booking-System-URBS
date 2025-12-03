@@ -1,0 +1,15 @@
+{% extends "main.html" %}
+
+{% block title %}Logged Out{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="alert alert-info text-center shadow-sm" role="alert">
+        <h4 class="alert-heading">👋 You have been successfully logged out!</h4>
+        <p>Thank you for using the Resource Booking System.</p>
+        <hr>
+        <a href="{% url 'login' %}" class="btn btn-success">Log In Again</a>
+        <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary">Return Home</a>
+    </div>
+</div>
+{% endblock  %}

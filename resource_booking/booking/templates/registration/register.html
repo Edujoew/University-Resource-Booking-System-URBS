@@ -1,0 +1,59 @@
+{% extends "main.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}Register New Account{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h2 class="mb-0">📝 Register Account</h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-info">
+                        Please fill out the form below to create your University Booking account.
+                    </p>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {{ form|crispy }}
+                        
+                        <!-- Show/Hide Password Toggle -->
+                        <div class="form-check mt-2">
+                            <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">
+                            <label class="form-check-label" for="showPassword">
+                                Show Passwords
+                            </label>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary mt-3">Register</button>
+                        <a href="{% url 'login' %}" class="btn btn-outline-secondary mt-3 ms-2">Back to Login</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function togglePasswordVisibility() {
+    // Find all password input fields
+    const allInputs = document.querySelectorAll('input');
+    const showPasswordCheckbox = document.getElementById('showPassword');
+    
+    allInputs.forEach(input => {
+        // Check if input is a password field by type or name
+        if (input.type === 'password' || input.name.includes('password')) {
+            if (showPasswordCheckbox.checked) {
+                input.type = 'text';
+            } else {
+                input.type = 'password';
+            }
+        }
+    });
+}
+</script>
+{% endblock content %}

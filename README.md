@@ -1,11 +1,7 @@
 University Resource and Equipment booking system(UREBS)
-## University-Resource-Booking-System-URBS
+## University-Resource-Booking-System-UREBS
+The University Resource and Equipment Booking System is a straightforward website designed to fix the headache of getting access to essential campus gear and rooms. Every student knows the frustration of needing a specific piece of lab equipment or a quiet group study room, only to find the sign-up
 
-![alt text](image-1.png)
-
-## super user
-
-![alt text](image.png)
 
 ## main.html
 

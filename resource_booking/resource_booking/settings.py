@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +39,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'booking',
+    'crispy_forms',     # <--- 2. Required for crispy forms functionality
+    'crispy_bootstrap5', # <--- 3. Required for the bootstrap 5 theme
 ]
 
 MIDDLEWARE = [
@@ -55,7 +58,8 @@ ROOT_URLCONF = 'resource_booking.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'], # <--- CONFIRMED PROJECT-LEVEL TEMPLATES
+        # ...
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,3 +132,9 @@ LOGIN_REDIRECT_URL = '/'
 
 # URL to redirect to after a user has successfully logged out.
 LOGOUT_REDIRECT_URL = '/'
+
+# --- NEW ADDITIONS FOR AUTHENTICATION & FORMS ---
+
+# Define the form library to use with Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"

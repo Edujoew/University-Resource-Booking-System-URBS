@@ -1,4 +1,6 @@
 from django.db import models
+from django.conf import settings
+from django.utils import timezone
 
 # Create your models here.
 class Resource(models.Model):
@@ -57,3 +59,26 @@ class Resource(models.Model):
         verbose_name = "Bookable Resource"
         verbose_name_plural = "Bookable Resources"
         ordering = ['name']
+
+
+class BookingRequest(models.Model):
+    """Represents a user's request to book a Resource for a time range."""
+
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+    ]
+
+    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='booking_requests')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='booking_requests')
+    start_time = models.DateTimeField()
+    end_time = models.DateTimeField()
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.resource.name} request by {self.user} ({self.start_time} - {self.end_time})"
+
+    class Meta:
+        ordering = ['-created_at']

@@ -1,11 +1,5 @@
 University Resource and Equipment booking system(UREBS)
-## University-Resource-Booking-System-URBS
-
-![alt text](image-1.png)
-
-## super user
-
-![alt text](image.png)
+## University-Resource-Booking-System-UREBS
 
 ## main.html
 
@@ -26,7 +20,7 @@ Contextual Welcome	-Why Conditional? The text content adapts based on the user's
 
 ## hompage
 
-![alt text](image.png)
+![alt text](homepage.png)
 
 Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that navigation to the login and register pages works even if the URL structure changes later.
 
@@ -37,7 +31,7 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 
 ## login page
 
-![alt text](image-1.png)
+![alt text](login page.png)
 
 ## logged_out
 
@@ -45,7 +39,7 @@ Template Path	Why templates/registration/logged_out.html? Similar to login.html,
 
 ## logout button
 
-![alt text](image.png)
+![alt text](logout button.png)
 
 alert alert-info	Purpose: Uses Bootstrap components (alerts) to provide a clear, user-friendly, and styled message confirming the logout action.
 
@@ -55,7 +49,7 @@ alert alert-info	Purpose: Uses Bootstrap components (alerts) to provide a clear,
 
 ## registartion page
 
-![alt text](image-1.png)
+![alt text](registartion page.png)
 
 ## form.py
 

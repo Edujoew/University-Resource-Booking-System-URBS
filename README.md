@@ -33,6 +33,9 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 "jumbotron text-center bg-light p-5 rounded shadow-sm">	Purpose: Uses the Bootstrap framework to create a large, prominent block (jumbotron styling) that centers the content, applies a light background (bg-light), adds padding (p-5), and gives it a slightly raised visual effect (rounded shadow-sm)
 ![alt text](<landing page.png>)
 
+## updated landing page
+![alt text](<landing pg.png>)
+
 ## login page
 ![alt text](<login page.png>)
 
@@ -82,4 +85,8 @@ is_available = models.BooleanField(default=True)	 A control field allowing admin
 __str__ method	 Defines the human-readable representation of a resource object (e.g., "Room 33 (Room/Lecture Hall)"). This is vital for debugging and clarity in the Django Admin interface.
 
 ## booking form
-![alt text](<booking and submit.png>)
+!![alt text](<submit booking.png>)
+
+## MPESA API
+![alt text](<stk push.png>)
+

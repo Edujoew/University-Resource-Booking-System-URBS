@@ -36,6 +36,12 @@ class Resource(models.Model):
         default=1, 
         help_text="Maximum number of people or concurrent uses allowed."
     )
+    cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        help_text="Cost to book this resource (0 for free)."
+    )
     is_available = models.BooleanField(
         default=True, 
         help_text="Indicates if the resource is currently active and bookable."
@@ -85,6 +91,20 @@ class BookingRequest(models.Model):
         choices=STATUS_CHOICES,
         default='PENDING', 
         help_text="The current approval status of the booking request."
+    )
+    
+    PAYMENT_STATUS = [
+        ('NOT_REQUIRED', 'No Payment Required'),
+        ('PENDING', 'Payment Pending'),
+        ('PAID', 'Payment Completed'),
+        ('FAILED', 'Payment Failed'),
+    ]
+    
+    payment_status = models.CharField(
+        max_length=15,
+        choices=PAYMENT_STATUS,
+        default='NOT_REQUIRED',
+        help_text="Payment status for this booking."
     )
     
     requested_on = models.DateTimeField(auto_now_add=True)

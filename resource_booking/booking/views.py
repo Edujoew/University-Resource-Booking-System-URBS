@@ -10,6 +10,14 @@ from django.contrib import messages
 from .models import BookingRequest
 from .forms import BookingRequestForm, UserRegistrationForm
 
+# --- NEW: Public Landing Page View (accessible without login) ---
+class LandingView(TemplateView):
+    """
+    Publicly accessible view for the site's landing page.
+    It introduces the system and prompts users to log in or register.
+    """
+    template_name = 'booking/landing.html'
+
 # --- Issue 2: Homepage View ---
 class HomeView(LoginRequiredMixin, TemplateView):
     """

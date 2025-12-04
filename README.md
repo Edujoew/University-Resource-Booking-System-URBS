@@ -63,3 +63,17 @@ model = BookingRequest	Purpose: Explicitly tells the form builder to base the fo
 fields = ['resource', 'start_time', 'end_time']	Purpose: This list specifies the three fields the user is allowed to input and change. Fields like user, status, and request_date are intentionally excluded because they are handled automatically by the system logic (in the view or model default), not by the user.
 
 widgets = {...}	Purpose: Customizes the HTML input type for the date and time fields. Setting the type to datetime-local instructs modern web browsers to display a calendar and clock interface (a date/time picker), significantly improving the user experience and reducing errors compared to a plain text box.
+
+## models.py
+from django.contrib.auth import get_user_model	
+Imports the standard way to retrieve the active user model. This ensures compatibility whether the project uses the default Django User model or a custom one defined in settings.py.
+
+RESOURCE_CHOICES	 Defines a set of predefined constants for the type field. This prevents data inconsistency and makes it easier to filter resources in the backend (e.g., filter only 'EQUIP'ment).
+
+name = models.CharField(..., unique=True) Stores the common name of the resource. unique=True is crucial for data integrity, ensuring no two resources have the same name (e.g., only one "Lecture Hall A").
+
+type = models.CharField(..., choices=RESOURCE_CHOICES)	 Categorizes the resource based on the defined choices. This is used for easy filtering and organization on the frontend.
+
+is_available = models.BooleanField(default=True)	 A control field allowing administrators to temporarily disable a resource (e.g., if it's broken or undergoing maintenance) without deleting its record.
+
+__str__ method	 Defines the human-readable representation of a resource object (e.g., "Room 33 (Room/Lecture Hall)"). This is vital for debugging and clarity in the Django Admin interface.

@@ -77,3 +77,6 @@ type = models.CharField(..., choices=RESOURCE_CHOICES)	 Categorizes the resource
 is_available = models.BooleanField(default=True)	 A control field allowing administrators to temporarily disable a resource (e.g., if it's broken or undergoing maintenance) without deleting its record.
 
 __str__ method	 Defines the human-readable representation of a resource object (e.g., "Room 33 (Room/Lecture Hall)"). This is vital for debugging and clarity in the Django Admin interface.
+
+## booking form
+![alt text](<booking and submit.png>)

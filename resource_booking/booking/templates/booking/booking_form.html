@@ -1,0 +1,37 @@
+{% extends "main.html" %}
+{% load crispy_forms_tags %}
+
+{% block title %}New Booking Request{% endblock title %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white">
+                    <h2 class="mb-0">➕ Submit a New Booking Request</h2>
+                </div>
+                <div class="card-body p-4">
+                    <p class="text-muted">
+                        Please fill in the details below to reserve a resource. All requests start with a 'Pending Review' status.
+                    </p>
+                    <hr>
+                    
+                    <form method="post" action="{% url 'booking:new_booking' %}">
+                        {% csrf_token %}
+                        
+                        {# Renders the form fields using the crispy_forms filter #}
+                        {{ form|crispy }} 
+                        
+                        <div class="d-grid gap-2 mt-4">
+                            <button type="submit" class="btn btn-success btn-lg">
+                                Submit Booking
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

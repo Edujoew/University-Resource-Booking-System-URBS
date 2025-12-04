@@ -1,12 +1,15 @@
 
 from django.urls import path
-from .views import HomeView, BookingCreateView, RegisterView
+from .views import LandingView, HomeView, BookingCreateView, RegisterView
 
 app_name = 'booking'
 
 urlpatterns = [
+    # 1. NEW: Root URL now points to the public LandingView
+    path('', LandingView.as_view(), name='landing'),
+
     # Issue 2: Homepage
-    path('', HomeView.as_view(), name='home'),
+    path('home/', HomeView.as_view(), name='home'),
     
     # Issue 3: User Registration
     path('register/', RegisterView.as_view(), name='register'),

@@ -29,6 +29,9 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 
 {% load crispy_forms_tags %}	 Imports the tag needed to format Django forms beautifully using the Crispy Forms library and the Bootstrap 5 template pack.
 {% csrf_token %}	 Mandatory security token. This hidden field prevents Cross-Site Request Forgery (CSRF) attacks, ensuring that the form submission is valid and originated from our application.
+## landing page
+"jumbotron text-center bg-light p-5 rounded shadow-sm">	Purpose: Uses the Bootstrap framework to create a large, prominent block (jumbotron styling) that centers the content, applies a light background (bg-light), adds padding (p-5), and gives it a slightly raised visual effect (rounded shadow-sm).
+![alt text](<landing page.png>)
 
 ## login page
 ![alt text](<login page.png>)

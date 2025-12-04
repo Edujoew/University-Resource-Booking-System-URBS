@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+
+{% block title %}Welcome to the URBS{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="jumbotron text-center bg-light p-5 rounded shadow-sm">
+        <h1 class="display-2 text-success fa-solid fa-graduation-cap me-4">
+             University Resource Booking System (UREBS)
+        </h1>
+        <p class="lead mt-4">
+            Easily view, request, and manage university resources—from meeting rooms and labs to specialized equipment.
+        </p>
+        <hr class="my-4">
+        
+        <p>
+            You must log in to submit a new booking request or view your existing reservations.
+        </p>
+        
+        <a class="btn btn-success btn-lg mx-2" href="{% url 'login' %}" role="button">
+            Log In Now
+        </a>
+        <a class="btn btn-outline-secondary btn-lg mx-2" href="{% url 'booking:register' %}" role="button">
+            Register for an Account
+        </a>
+    </div>
+</div>
+{% endblock content %}

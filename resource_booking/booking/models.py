@@ -1,14 +1,17 @@
-from django.db import models
-from django.conf import settings
-from django.utils import timezone
+# booking/models.py
 
-# Create your models here.
+from django.db import models
+from django.contrib.auth import get_user_model # Use get_user_model for flexibility
+
+# Get the active User model (Django's default or a custom one)
+User = get_user_model() 
+
+# --- Model 1: Resource ---
 class Resource(models.Model):
     """
-    Represents a physical resource or space that can be booked.
+    Model to represent a bookable resource (room, equipment, etc.).
     """
     
-    # Define available choices for the 'type' field
     RESOURCE_CHOICES = [
         ('ROOM', 'Room/Lecture Hall'),
         ('EQUIP', 'Equipment (e.g., Projector, Camera)'),
@@ -17,68 +20,80 @@ class Resource(models.Model):
         ('OTHER', 'Other'),
     ]
 
-    # --- 2. Define Model Fields ---
-    
-    # Resource name (e.g., "Room 305", "4K Projector")
     name = models.CharField(
-        max_length=100,
-        unique=True,
+        max_length=100, 
+        unique=True, 
         help_text="A unique, identifiable name for the resource."
     )
-    
-    # Detailed description of the resource
-    description = models.TextField(
-        blank=True,
-        help_text="Detailed information about the resource (features, location, etc.)."
-    )
-    
-    # Resource type using defined choices
     type = models.CharField(
         max_length=5,
         choices=RESOURCE_CHOICES,
         default='OTHER',
         help_text="The category of the resource (e.g., Room, Equipment)."
     )
-    
-    # Maximum capacity (e.g., number of seats in a room, or 1 for equipment)
-    capacity = models.IntegerField(
-        default=1,
-        help_text="The maximum number of people or concurrent uses allowed."
+    description = models.TextField(blank=True)
+    capacity = models.PositiveIntegerField(
+        default=1, 
+        help_text="Maximum number of people or concurrent uses allowed."
+    )
+    is_available = models.BooleanField(
+        default=True, 
+        help_text="Indicates if the resource is currently active and bookable."
     )
 
-    # --- 3. Implement __str__ method ---
-    def __str__(self):
-        """
-        Returns a string representation of the model instance, 
-        useful for the Django Admin and debugging.
-        """
-        return f"{self.name} ({self.get_type_display()})"
-
-    # --- 4. Define Meta Class (Optional but Recommended) ---
     class Meta:
+        ordering = ['name']
         verbose_name = "Bookable Resource"
         verbose_name_plural = "Bookable Resources"
-        ordering = ['name']
-
-
-class BookingRequest(models.Model):
-    """Represents a user's request to book a Resource for a time range."""
-
-    STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('APPROVED', 'Approved'),
-        ('REJECTED', 'Rejected'),
-    ]
-
-    resource = models.ForeignKey(Resource, on_delete=models.CASCADE, related_name='booking_requests')
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='booking_requests')
-    start_time = models.DateTimeField()
-    end_time = models.DateTimeField()
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.resource.name} request by {self.user} ({self.start_time} - {self.end_time})"
+        # Displays the name and the friendly type (e.g., "Room 305 (Room/Lecture Hall)")
+        return f"{self.name} ({self.get_type_display()})" 
 
+# --- Model 2: BookingRequest ---
+class BookingRequest(models.Model):
+    """
+    Model to track individual booking requests made by users.
+    """
+    
+    STATUS_CHOICES = [
+        ('PENDING', 'Pending Review'),
+        ('APPROVED', 'Approved'),
+        ('REJECTED', 'Rejected'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+
+    user = models.ForeignKey(
+        User, 
+        on_delete=models.CASCADE,
+        related_name='user_bookings', # Changed related_name for clarity
+        help_text="The user who submitted this booking request."
+    )
+    
+    resource = models.ForeignKey(
+        Resource, 
+        on_delete=models.CASCADE,
+        related_name='resource_bookings', # Changed related_name for clarity
+        help_text="The resource or equipment being requested."
+    )
+    
+    start_time = models.DateTimeField(help_text="The start date and time of the booking.")
+    end_time = models.DateTimeField(help_text="The end date and time of the booking.")
+    
+    status = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default='PENDING', 
+        help_text="The current approval status of the booking request."
+    )
+    
+    requested_on = models.DateTimeField(auto_now_add=True)
+    
     class Meta:
-        ordering = ['-created_at']
+        ordering = ['start_time']
+        verbose_name = "Booking Request"
+        verbose_name_plural = "Booking Requests"
+
+    def __str__(self):
+        # Example: "Lecture hall 33 booked by edwardsJohn (PENDING)"
+        return f"{self.resource.name} booked by {self.user.username} ({self.status})"

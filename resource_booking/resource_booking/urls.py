@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # Built-in Auth URLs (login, logout, etc.)
     path('accounts/', include('django.contrib.auth.urls')), 
-   
-    path('', include('booking.urls')), 
+    # M-Pesa payment URLs
+    path('api/payments/', include('payments.urls')),
+    # Booking app URLs
+    path('', include('booking.urls')),
 ]

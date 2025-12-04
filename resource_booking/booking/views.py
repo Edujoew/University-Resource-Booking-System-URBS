@@ -6,8 +6,11 @@ from django.views.generic.edit import FormView
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+from django.http import JsonResponse
+import json
 
-from .models import BookingRequest
+
+from .models import BookingRequest, Resource
 from .forms import BookingRequestForm, UserRegistrationForm
 
 # --- NEW: Public Landing Page View (accessible without login) ---
@@ -56,6 +59,7 @@ class RegisterView(FormView):
 class BookingCreateView(LoginRequiredMixin, CreateView):
     """
     Handles form submission for new BookingRequests. Requires user to be logged in.
+    If the resource requires payment, redirects to payment page.
     """
     model = BookingRequest
     form_class = BookingRequestForm
@@ -65,8 +69,28 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         """
         Overrides form_valid to automatically set the user and initial status.
+        Check if payment is required.
         """
         # Set the user to the currently logged-in user
         form.instance.user = self.request.user
         # Status is automatically set to PENDING by the model default
-        return super().form_valid(form)
+        
+        # Check if the resource requires payment
+        resource = form.cleaned_data.get('resource')
+        if resource and resource.cost > 0:
+            # Save the booking first
+            booking = form.save()
+            # Set payment status to pending
+            booking.payment_status = 'PENDING'
+            booking.save()
+            # Redirect to payment page with booking ID
+            return redirect(f'{reverse_lazy("payments:stk_push")}?booking_id={booking.id}')
+        else:
+            # No payment required
+            return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        """Add resource costs to context for display"""
+        context = super().get_context_data(**kwargs)
+        context['resources'] = Resource.objects.filter(is_available=True)
+        return context

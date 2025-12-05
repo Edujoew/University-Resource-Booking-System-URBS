@@ -90,3 +90,14 @@ __str__ method	 Defines the human-readable representation of a resource object (
 ## MPESA API
 ![alt text](<stk push.png>)
 
+## booking confilict validation
+Basic Sanity	Checks if start_time is less than end_time.	Prevents illogical bookings and potential database errors.
+
+OCCUPIED_STATUSES	Defines ['APPROVED', 'PENDING'] as statuses that block new bookings.	Ensures resources reserved by users (even if pending payment/review) cannot be double-booked.
+
+Database Query (A & B)	Filters by the requested resource and the OCCUPIED_STATUSES.	Narrows the search to relevant existing reservations.
+
+Overlap Condition (C)	start_time__lt=end_time AND end_time__gt=start_time	This is the standard, most reliable method for checking if two time intervals conflict.
+
+forms.ValidationError	If conflicting_bookings.exists() is True, the process stops, and the error message is displayed to the user.	Enforces the core business rule and provides user feedback.
+

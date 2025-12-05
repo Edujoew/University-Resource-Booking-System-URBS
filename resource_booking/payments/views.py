@@ -14,27 +14,35 @@ logger = logging.getLogger(__name__)
 
 class STKPushView(View):
     """Initiate STK push for M-Pesa payment."""
-    
-    def get(self, request):
-        """Display STK push payment form for bookings."""
-        booking_id = request.GET.get('booking_id')
+
+    def get(self, request, *args, **kwargs):
+        """Display STK push payment form for bookings.
+
+        Accepts `booking_id` either as a URL kwarg (preferred) or a GET parameter.
+        """
+        # Prefer booking_id from URL kwargs, fall back to GET param
+        booking_id = kwargs.get('booking_id') or request.GET.get('booking_id')
         amount = request.GET.get('amount')
-        
+
         context = {
             'booking_id': booking_id,
             'amount': amount,
         }
-        
+
         # If booking_id provided, fetch booking details
         if booking_id:
             try:
                 from booking.models import BookingRequest
                 booking = BookingRequest.objects.get(id=booking_id, user=request.user)
                 context['booking'] = booking
-                context['amount'] = int(booking.resource.cost)
+                # Use resource cost if available
+                try:
+                    context['amount'] = int(booking.resource.cost)
+                except Exception:
+                    context['amount'] = amount
             except Exception as e:
                 logger.error(f"Error fetching booking: {str(e)}")
-        
+
         return render(request, 'payments/stk_push.html', context)
     
     def post(self, request):

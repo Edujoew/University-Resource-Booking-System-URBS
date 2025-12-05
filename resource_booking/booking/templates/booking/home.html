@@ -3,13 +3,58 @@
 {% block title %}Welcome{% endblock title %}
 
 {% block content %}
+<style>
+    /* Custom styles for the appealing hero section */
+    .homepage-hero {
+        /* Define a subtle, professional gradient (e.g., University colors) */
+        background: linear-gradient(135deg, #f0f8ff 0%, #e0f7fa 100%); /* Light Blue/White gradient */
+        /* You could use your UREBS colors: background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); */
+        
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); /* Stronger, professional shadow */
+        border-radius: 1rem !important; /* Slightly more rounded corners */
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease;
+    }
+    
+    .homepage-hero:hover {
+        transform: translateY(-2px); /* Subtle lift effect on hover */
+    }
+
+    .homepage-hero .display-5 {
+        font-weight: 700;
+        color: #1a5276; /* Darker accent color for the title */
+        border-bottom: 2px solid #b3e0ff; /* Subtle line under the title */
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .homepage-hero .fs-4 {
+        color: #333;
+    }
+
+    /* Styling for the feature sections below the hero */
+    .feature-card h2 {
+        color: #007bff; /* Blue text for headers */
+        font-size: 1.5rem;
+        margin-bottom: 15px;
+    }
+    
+    .feature-card .btn {
+        transition: all 0.3s ease;
+    }
+    
+</style>
+
 <div class="container mt-5">
-    <div class="p-5 mb-4 bg-light rounded-3 shadow-sm">
+    
+    {# --- JUMBOTRON / HERO SECTION --- #}
+    <div class="p-5 mb-4 homepage-hero">
         <div class="container-fluid py-5">
             <h1 class="display-5 fw-bold">University Resource Booking Portal</h1>
             <p class="col-md-8 fs-4">
                 {% if user.is_authenticated %}
-                    Welcome back, {{ user.first_name|default:user.username }}! Use the navigation bar above to view resources or check your bookings.
+                    Welcome back, **{{ user.first_name|default:user.username }}**! Use the navigation bar above to view resources or check your bookings.
                 {% else %}
                     Welcome to the official portal for reserving university resources and equipment. Please **Login** or **Register** to begin.
                 {% endif %}
@@ -18,23 +63,26 @@
                 <a href="{% url 'login' %}" class="btn btn-success btn-lg me-2">
                     <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Log In Now
                 </a>
-                <a href="{% url 'register' %}" class="btn btn-outline-secondary btn-lg">
+                <a href="{% url 'booking:register' %}" class="btn btn-outline-secondary btn-lg">
                     Register
                 </a>
             {% endif %}
         </div>
     </div>
     
-    <div class="row">
-        <div class="col-md-4">
-            <h2>Reserve a Space</h2>
+    {# --- FEATURE SECTIONS --- #}
+    <div class="row pt-4">
+        <div class="col-md-6 feature-card">
+            <h2><i class="fa-solid fa-building-user me-2"></i> Reserve a Space</h2>
             <p>Book classrooms, labs, study rooms, and lecture halls for your official university use.</p>
-            <a href="#" class="btn btn-outline-primary">Browse Spaces &raquo;</a>
+            {# NOTE: Ensure 'booking:resource_list' is the correct name for your resource list URL if you want this link to be functional for authenticated users. Currently using a placeholder name: #}
+            <a href="{% url 'booking:home' %}" class="btn btn-outline-primary">Browse Spaces &raquo;</a>
         </div>
-        <div class="col-md-4">
-            <h2>Equipment Rentals</h2>
+        <div class="col-md-6 feature-card">
+            <h2><i class="fa-solid fa-camera me-2"></i> Equipment Rentals</h2>
             <p>Reserve projectors, laptops, cameras, and other equipment needed for your academic projects.</p>
-            <a href="#" class="btn btn-outline-primary">Browse Equipment &raquo;</a>
+            <a href="{% url 'booking:home' %}" class="btn btn-outline-primary">Browse Equipment &raquo;</a>
+        </div>
     </div>
 </div>
 {% endblock content %}

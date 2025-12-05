@@ -39,7 +39,7 @@
                     
                     {% if user.is_authenticated %}
                         <li class="nav-item">
-                            <a class="nav-link" href="#">My Bookings</a>
+                            <a class="nav-link" href="{% url 'booking:my_bookings_dashboard' %}">My Bookings</a>
                         </li>
                         
                         {# Admin/Staff Link (Future Issue 8) #}

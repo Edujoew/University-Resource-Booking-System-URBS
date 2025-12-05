@@ -8,6 +8,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.http import JsonResponse
 import json
+from django.views.generic import ListView  # <-- Add ListView import
 
 
 from .models import BookingRequest, Resource
@@ -64,8 +65,8 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
     model = BookingRequest
     form_class = BookingRequestForm
     template_name = 'booking/booking_form.html'
-    # Default success_url is only used if no payment is required (final redirect is custom)
-    success_url = reverse_lazy('booking:home') 
+    # After creating a booking, redirect users to their bookings dashboard
+    success_url = reverse_lazy('booking:my_bookings_dashboard')
 
     def form_valid(self, form):
         """
@@ -84,15 +85,13 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
         resource = booking.resource # Access resource object directly
         
         if resource and resource.cost > 0:
-            # Payment Required:
-            booking.save() # Save the PENDING booking to generate the PK (ID)
-            
-            messages.info(self.request, "Booking successfully reserved. Please complete payment to confirm.")
-            
-            # --- CRITICAL FIX: Redirect to the payment view using the correct URL name and argument ---
-            # URL name: payments:initiate_mpesa_payment (from payments/urls.py)
-            # Argument: booking_id=booking.pk
-            return redirect('payments:initiate_mpesa_payment', booking_id=booking.pk)
+            # Payment Required: save as PENDING and send user to their dashboard
+            booking.save()  # Save the PENDING booking to generate the PK (ID)
+
+            messages.info(self.request, "Booking successfully reserved. Complete payment from your bookings dashboard.")
+
+            # Redirect user to their bookings dashboard where they can see the PENDING booking
+            return redirect('booking:my_bookings_dashboard')
             
         else:
             # No Payment Required (Cost is 0):
@@ -106,3 +105,36 @@ class BookingCreateView(LoginRequiredMixin, CreateView):
         context = super().get_context_data(**kwargs)
         context['resources'] = Resource.objects.filter(is_available=True)
         return context
+
+        # booking/views.py
+# ... (existing imports)
+
+
+
+
+# --- Issue 7: Student Booking Dashboard View ---
+class MyBookingsView(LoginRequiredMixin, ListView):
+    """
+    Displays a list of all BookingRequest objects belonging 
+    to the currently logged-in user.
+    """
+    model = BookingRequest
+    template_name = 'booking/my_bookings_dashboard.html'
+    context_object_name = 'bookings'
+    
+    def get_queryset(self):
+        """
+        Filters the queryset to only show bookings made by the current user.
+        """
+        # self.request.user refers to the logged-in user (provided by LoginRequiredMixin)
+        return BookingRequest.objects.filter(user=self.request.user).order_by('-start_time')
+    
+    def get_context_data(self, **kwargs):
+        """Adds filtering context for the template"""
+        context = super().get_context_data(**kwargs)
+        #  categorize bookings for the template if needed
+        context['pending_bookings'] = context['bookings'].filter(status='PENDING')
+        context['past_bookings'] = context['bookings'].exclude(status='PENDING')
+        return context
+        
+

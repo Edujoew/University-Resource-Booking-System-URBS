@@ -1,6 +1,12 @@
 
 from django.urls import path
-from .views import LandingView, HomeView, BookingCreateView, RegisterView
+from .views import (
+    LandingView,
+    HomeView,
+    BookingCreateView,
+    RegisterView,
+    MyBookingsView,
+)
 
 app_name = 'booking'
 
@@ -16,4 +22,7 @@ urlpatterns = [
     
     # Issue 5: Booking Submission
     path('new/', BookingCreateView.as_view(), name='new_booking'),
+
+    # issue7: View User's Bookings
+    path('my_bookings_dashboard/', MyBookingsView.as_view(), name='my_bookings_dashboard'),
 ]

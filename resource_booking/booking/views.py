@@ -81,3 +81,20 @@ def my_bookings_dashboard(request):
     }
     
     return render(request, 'booking/my_bookings_dashboard.html', context)
+@login_required
+
+def admin_pending_requests(request):
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Access denied. You must be staff or a superuser.")
+
+    pending_bookings = BookingRequest.objects.filter(status='PENDING').order_by('start_date_time')
+    
+    context = {
+        'pending_bookings': pending_bookings
+    }
+
+    return render(request, 'booking/admin_pending_list.html', context)
+
+
+def resource_list(request):
+    return render(request, 'booking/resource_list.html', {})

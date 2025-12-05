@@ -45,12 +45,11 @@
                         {# Admin/Staff Link (Future Issue 8) #}
                         {% if user.is_staff %}
                         <li class="nav-item">
-                            <a class="nav-link text-warning" href="#">Pending Review</a>
+                            <a class="nav-link text-warning" href="{% url 'booking:admin_pending_dashboard' %}">Pending Review</a>
                         </li>
                         {% endif %}
                     {% endif %}
                 </ul>
-
                 {# Authentication Links (Right Side) #}
                
                 <ul class="navbar-nav ms-auto">

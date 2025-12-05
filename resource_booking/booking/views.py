@@ -55,39 +55,51 @@ class RegisterView(FormView):
         """
         return self.render_to_response(self.get_context_data(form=form))
 
-# --- Issue 5: Booking Creation View ---
+# --- Issue 5/7: Booking Creation View (FIXED) ---
 class BookingCreateView(LoginRequiredMixin, CreateView):
     """
     Handles form submission for new BookingRequests. Requires user to be logged in.
-    If the resource requires payment, redirects to payment page.
+    If the resource requires payment, redirects to the M-Pesa payment page.
     """
     model = BookingRequest
     form_class = BookingRequestForm
     template_name = 'booking/booking_form.html'
-    success_url = reverse_lazy('booking:home') # Redirect back to home on success
+    # Default success_url is only used if no payment is required (final redirect is custom)
+    success_url = reverse_lazy('booking:home') 
 
     def form_valid(self, form):
         """
-        Overrides form_valid to automatically set the user and initial status.
-        Check if payment is required.
+        Overrides form_valid to automatically set the user, initial status,
+        and handle payment redirection.
         """
-        # Set the user to the currently logged-in user
-        form.instance.user = self.request.user
-        # Status is automatically set to PENDING by the model default
+        # 1. Prepare to save: Attach the current user to the booking object
+        booking = form.save(commit=False)
+        booking.user = self.request.user   
         
-        # Check if the resource requires payment
-        resource = form.cleaned_data.get('resource')
+        # 2. Set Initial Status: All new bookings requiring payment start as PENDING
+        # (Status is PENDING by default in the model, but explicitly set here for clarity)
+        booking.status = 'PENDING'
+        
+        # 3. Check for Payment Requirement
+        resource = booking.resource # Access resource object directly
+        
         if resource and resource.cost > 0:
-            # Save the booking first
-            booking = form.save()
-            # Set payment status to pending
-            booking.payment_status = 'PENDING'
-            booking.save()
-            # Redirect to payment page with booking ID
-            return redirect(f'{reverse_lazy("payments:stk_push")}?booking_id={booking.id}')
+            # Payment Required:
+            booking.save() # Save the PENDING booking to generate the PK (ID)
+            
+            messages.info(self.request, "Booking successfully reserved. Please complete payment to confirm.")
+            
+            # --- CRITICAL FIX: Redirect to the payment view using the correct URL name and argument ---
+            # URL name: payments:initiate_mpesa_payment (from payments/urls.py)
+            # Argument: booking_id=booking.pk
+            return redirect('payments:initiate_mpesa_payment', booking_id=booking.pk)
+            
         else:
-            # No payment required
-            return super().form_valid(form)
+            # No Payment Required (Cost is 0):
+            booking.status = 'APPROVED' # Immediately approve free bookings
+            booking.save()
+            messages.success(self.request, "Booking successfully created (no payment required).")
+            return super().form_valid(form) # Uses the default success_url ('booking:home')
 
     def get_context_data(self, **kwargs):
         """Add resource costs to context for display"""

@@ -104,10 +104,16 @@ forms.ValidationError	If conflicting_bookings.exists() is True, the process stop
 # 📚 Student Booking Dashboard (Issue #7)
 
 View (`views.py`):** Uses `LoginRequiredMixin` + `ListView` for access control.
+
 Filtering:** `get_queryset` filters by current user: `BookingRequest.objects.filter(user=self.request.user)`.
+
  Context:** `get_context_data` separates bookings into `pending_bookings` and `past_bookings`.
+
  URL:** Mapped at `path('my_bookings_dashboard/', ...)` using `name='my_bookings_dashboard'`.
+
  Template:** Renders data in `my_bookings_dashboard.html`, utilizing a partial table.
+
  Visuals:** Uses color-coded Bootstrap badges (e.g., `bg-warning` for PENDING) for status.
+ 
  ![alt text](<booking dashboard.png>)
  

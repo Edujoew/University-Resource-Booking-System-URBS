@@ -21,7 +21,7 @@ class BookingRequestForm(forms.ModelForm):
     class Meta:
         model = BookingRequest
         fields = ['resource', 'start_time', 'end_time']
-        # NOTE: If you add 'purpose' later, update the fields list here
+       
         
         widgets = {
             'resource': forms.Select(
@@ -72,7 +72,7 @@ class BookingRequestForm(forms.ModelForm):
         if not all([resource, start_time, end_time]):
             return cleaned_data # Let individual field errors handle missing data
 
-        # 2. Check Time Order: End time must be after start time
+        # 2. Time Order Check: Ensure start_time is before end_time
         if start_time >= end_time:
             raise ValidationError(
                 "The end time must be later than the start time."

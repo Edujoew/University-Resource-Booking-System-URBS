@@ -3,7 +3,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model # Use get_user_model for flexibility
 
-# Get the active User model (Django's default or a custom one)
+
 User = get_user_model() 
 
 # --- Model 1: Resource ---
@@ -53,7 +53,7 @@ class Resource(models.Model):
         verbose_name_plural = "Bookable Resources"
 
     def __str__(self):
-        # Displays the name and the friendly type (e.g., "Room 305 (Room/Lecture Hall)")
+        
         return f"{self.name} ({self.get_type_display()})" 
 
 # --- Model 2: BookingRequest ---
@@ -72,14 +72,14 @@ class BookingRequest(models.Model):
     user = models.ForeignKey(
         User, 
         on_delete=models.CASCADE,
-        related_name='user_bookings', # Changed related_name for clarity
+        related_name='user_bookings', 
         help_text="The user who submitted this booking request."
     )
     
     resource = models.ForeignKey(
         Resource, 
         on_delete=models.CASCADE,
-        related_name='resource_bookings', # Changed related_name for clarity
+        related_name='resource_bookings', 
         help_text="The resource or equipment being requested."
     )
     

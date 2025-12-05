@@ -15,12 +15,9 @@ urlpatterns = [
     # Built-in Auth URLs (login, logout, etc.)
     path('accounts/', include('django.contrib.auth.urls')), 
     
-    # --- CRITICAL FIX ---
-    # The 'payments' app contains the user-facing redirect (initiate_mpesa_payment)
-    # and the system-facing callback (mpesa_callback). 
-    # Use a simple prefix for easier redirection.
+    # Payment app URLs
     path('payments/', include('payments.urls')), # <-- CHANGED FROM 'api/payments/'
     
-    # Booking app URLs (should be last, as it includes the root path '')
+    # Booking app URLs
     path('', include('booking.urls')),
 ]

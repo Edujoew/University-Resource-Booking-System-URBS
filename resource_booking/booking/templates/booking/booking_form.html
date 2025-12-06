@@ -1,33 +1,93 @@
-{% extends "main.html" %}
-{% load crispy_forms_tags %}
+{% extends 'main.html' %}
+{% load static %}
 
-{% block title %}New Booking Request{% endblock title %}
+{% block title %}Book a Resource{% endblock title %}
 
 {% block content %}
-<div class="container my-5">
+<style>
+.booking-card-header {
+    background: linear-gradient(90deg, #007bff, #28a745);
+    color: white;
+    padding: 1.5rem;
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+}
+
+.booking-form-card {
+    border-radius: 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.form-label {
+    font-weight: 600;
+    color: #343a40;
+}
+</style>
+
+<div class="container mt-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
-            <div class="card shadow-lg">
-                <div class="card-header bg-success text-white">
-                    <h2 class="mb-0">➕ Submit a New Booking Request</h2>
+        <div class="col-lg-7 col-md-9">
+            <div class="card booking-form-card border-0">
+                <div class="booking-card-header">
+                    <h3 class="mb-0 text-center fw-bold">📅 New Resource Reservation</h3>
                 </div>
-                <div class="card-body p-4">
-                    <p class="text-muted">
-                        Please fill in the details below to reserve a resource. All requests start with a 'Pending Review' status.
-                    </p>
-                    <hr>
+                <div class="card-body p-4 p-md-5">
                     
-                    <form method="post" action="{% url 'booking:new_booking' %}">
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="post" id="bookingForm">
                         {% csrf_token %}
-                        
-                        {# Renders the form fields using the crispy_forms filter #}
-                        {{ form|crispy }} 
-                        
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">
-                                Submit Booking
-                            </button>
+
+                        <div class="mb-4">
+                            <label for="{{ form.resource.id_for_label }}" class="form-label">Resource to Book <span class="text-danger">*</span></label>
+                            {{ form.resource }}
+                            <div class="form-text text-muted">{{ form.resource.help_text|default:"Select the space or equipment you need." }}</div>
+                            {% if form.resource.errors %}
+                                <div class="text-danger small">{{ form.resource.errors }}</div>
+                            {% endif %}
                         </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.start_time.id_for_label }}" class="form-label">Start Date & Time <span class="text-danger">*</span></label>
+                                {{ form.start_time }}
+                                <div class="form-text text-muted">Format: YYYY-MM-DD HH:MM</div>
+                                {% if form.start_time.errors %}
+                                    <div class="text-danger small">{{ form.start_time.errors }}</div>
+                                {% endif %}
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.end_time.id_for_label }}" class="form-label">End Date & Time <span class="text-danger">*</span></label>
+                                {{ form.end_time }}
+                                <div class="form-text text-muted">Format: YYYY-MM-DD HH:MM</div>
+                                {% if form.end_time.errors %}
+                                    <div class="text-danger small">{{ form.end_time.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+                        
+                        <div class="mb-4">
+                            <label for="{{ form.purpose.id_for_label }}" class="form-label">Book now</label>
+                            {{ form.purpose }}
+                            {% if form.purpose.errors %}
+                                <div class="text-danger small">{{ form.purpose.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <button type="submit" class="btn btn-success btn-lg w-100 mb-3 shadow">
+                            <i class="bi bi-check-circle-fill me-2"></i> Submit Booking Request
+                        </button>
+                        <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary w-100">Cancel and Return</a>
                     </form>
                 </div>
             </div>

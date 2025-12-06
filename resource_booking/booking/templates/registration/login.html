@@ -4,37 +4,106 @@
 {% block title %}Log In{% endblock title %}
 
 {% block content %}
-<div class="container mt-5">
+<style>
+@keyframes moveBackground {
+    0% {
+        background-position: 0% 0%;
+    }
+    100% {
+        background-position: 100% 100%;
+    }
+}
+
+.login-card-custom {
+    background-color: rgba(255, 255, 255, 0.98) !important;
+    border-radius: 1rem;
+    overflow: hidden;
+    min-height: 600px;
+}
+
+.login-bg-animation {
+    background: linear-gradient(135deg, rgba(23, 162, 184, 0.8), rgba(40, 167, 69, 0.8));
+    position: relative;
+    overflow: hidden;
+    padding: 0 !important;
+}
+
+.login-bg-animation::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 300%; 
+    height: 300%;
+    background: repeating-linear-gradient(
+        -45deg,
+        rgba(255, 255, 255, 0.05),
+        rgba(255, 255, 255, 0.05) 15px,
+        transparent 15px,
+        transparent 30px
+    );
+    animation: moveBackground 60s linear infinite;
+    opacity: 0.8;
+}
+
+.login-image-content {
+    position: relative;
+    z-index: 10;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.2); 
+    padding: 2rem;
+}
+</style>
+
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-success text-white">
-                    <h2 class="mb-0">🔑 Log In</h2>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {{ form|crispy }}
-                        
-                        <!-- Show/Hide Password Toggle -->
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">
-                            <label class="form-check-label" for="showPassword">
-                                Show Password
-                            </label>
+        <div class="col-lg-10 col-md-12">
+            <div class="card shadow-lg login-card-custom">
+                <div class="row g-0">
+                    
+                    <div class="col-md-6 d-none d-md-flex login-bg-animation">
+                        <div class="login-image-content p-5 text-white">
+                            <h1 class="display-5 fw-bold mb-3">Welcome Back!</h1>
+                            <p class="lead">Access your university resource bookings and manage your schedule efficiently.</p>
+                            <img src="https://images.unsplash.com/photo-1596495578028-1b6e4e861a12?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                                 alt="University Study Area" 
+                                 class="img-fluid rounded shadow-sm mt-4">
                         </div>
-                        
-                        <button type="submit" class="btn btn-success mt-3">Log In</button>
-                        
-                        <p class="mt-3">
-                            <a href="{% url 'password_reset' %}">Forgot password?</a>
-                            <p class="mt-3 border-top pt-3">
-                            Don't have an account? 
-                            <a href="{% url 'booking:register' %}" class="fw-bold">Register here</a>.
-                        </p>
-                        </p>
-                    </form>
+                    </div>
+
+                    <div class="col-md-6 p-4 d-flex align-items-center">
+                        <div class="card-body w-100 p-4">
+                            <h2 class="mb-4 text-center text-success fw-bold">🔑 Sign In</h2>
+                            
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                {{ form|crispy }}
+                                
+                                <div class="form-check mt-3 mb-4">
+                                    <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">
+                                    <label class="form-check-label" for="showPassword">
+                                        Show Password
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success btn-lg w-100">Log In</button>
+                                
+                                <p class="mt-3 text-center">
+                                    <a href="{% url 'password_reset' %}" class="text-decoration-none">Forgot password?</a>
+                                </p>
+                                <p class="mt-3 border-top pt-3 text-center">
+                                    Don't have an account? 
+                                    <a href="{% url 'booking:register' %}" class="fw-bold text-success">Register here</a>.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -43,15 +112,11 @@
 
 <script>
 function togglePasswordVisibility() {
-    // Find all password input fields (crispy forms may nest them in divs)
-    const passwordFields = document.querySelectorAll('input[type="password"], input[data-type="password"]');
-    const showPasswordCheckbox = document.getElementById('showPassword');
-    
-    // Also try to find by name attribute if they have common password field names
     const allInputs = document.querySelectorAll('input');
     
     allInputs.forEach(input => {
-        if (input.type === 'password' || input.name === 'password') {
+        if (input.type === 'password' || input.name === 'password' || input.name === 'new_password1' || input.name === 'new_password2') {
+            const showPasswordCheckbox = document.getElementById('showPassword');
             if (showPasswordCheckbox.checked) {
                 input.type = 'text';
             } else {

@@ -1,4 +1,5 @@
 urbs
 resource_booking/booking/__pycache__
+.vscode
 resource_booking/resource_booking/__pycache__
 resource_booking/booking/__pycache__/forms.cpython-314.pyc

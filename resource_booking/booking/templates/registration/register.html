@@ -4,34 +4,80 @@
 {% block title %}Register New Account{% endblock title %}
 
 {% block content %}
-<div class="container mt-5">
+<style>
+.register-card-custom {
+    background-color: rgba(255, 255, 255, 0.98);
+    border-radius: 1rem;
+    overflow: hidden;
+    min-height: 750px;
+}
+
+.register-info-bg {
+    background: linear-gradient(135deg, #1abc9c 0%, #3498db 100%);
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.register-info-content {
+    padding: 3rem;
+    color: #fff;
+}
+
+.register-info-content h2 {
+    font-weight: 700;
+}
+</style>
+
+<div class="container my-5">
     <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow">
-                <div class="card-header bg-primary text-white">
-                    <h2 class="mb-0">📝 Register Account</h2>
-                </div>
-                <div class="card-body">
-                    <p class="text-info">
-                        Please fill out the form below to create your University Booking account.
-                    </p>
+        <div class="col-lg-10 col-md-12">
+            <div class="card shadow-lg register-card-custom">
+                <div class="row g-0">
                     
-                    <form method="post">
-                        {% csrf_token %}
-                        
-                        {{ form|crispy }}
-                        
-                        <!-- Show/Hide Password Toggle -->
-                        <div class="form-check mt-2">
-                            <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">
-                            <label class="form-check-label" for="showPassword">
-                                Show Passwords
-                            </label>
+                    <div class="col-md-6 d-none d-md-flex register-info-bg">
+                        <div class="register-info-content">
+                            <i class="bi bi-person-plus-fill display-1 mb-3"></i>
+                            <h2 class="mb-3">Join the Resource Booking System</h2>
+                            <p class="lead">Create your account to gain full access to all university spaces and equipment reservations.</p>
+                            <img src="https://images.unsplash.com/photo-1541339907198-e0875661f970?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
+                                 alt="University Campus View" 
+                                 class="img-fluid rounded shadow-sm mt-4 opacity-75">
                         </div>
-                        
-                        <button type="submit" class="btn btn-primary mt-3">Register</button>
-                        <a href="{% url 'login' %}" class="btn btn-outline-secondary mt-3 ms-2">Back to Login</a>
-                    </form>
+                    </div>
+
+                    <div class="col-md-6 p-4 d-flex align-items-center">
+                        <div class="card-body w-100 p-4">
+                            <h2 class="mb-4 text-center text-primary fw-bold">📝 Register Account</h2>
+                            
+                            <p class="text-secondary text-center mb-4">
+                                Fill out the required details below to create your secure account.
+                            </p>
+                            
+                            <form method="post">
+                                {% csrf_token %}
+                                
+                                {{ form|crispy }}
+                                
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">
+                                    <label class="form-check-label" for="showPassword">
+                                        Show Passwords
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary btn-lg w-100 mt-4">Register</button>
+                                
+                                <p class="mt-4 border-top pt-3 text-center">
+                                    Already have an account? 
+                                    <a href="{% url 'login' %}" class="fw-bold text-success">Log in here</a>.
+                                </p>
+                            </form>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -40,12 +86,10 @@
 
 <script>
 function togglePasswordVisibility() {
-    // Find all password input fields
     const allInputs = document.querySelectorAll('input');
     const showPasswordCheckbox = document.getElementById('showPassword');
     
     allInputs.forEach(input => {
-        // Check if input is a password field by type or name
         if (input.type === 'password' || input.name.includes('password')) {
             if (showPasswordCheckbox.checked) {
                 input.type = 'text';

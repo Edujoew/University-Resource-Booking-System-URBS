@@ -2,6 +2,7 @@ from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from django.http import JsonResponse
 from django_daraja.mpesa.core import MpesaClient
 from django_daraja.mpesa.exceptions import MpesaInvalidParameterException, MpesaConnectionError
+
 from booking.models import BookingRequest
 import json
 
@@ -57,7 +58,7 @@ def mpesaPayment(request):
                 amount=amount,
                 account_reference=ACCOUNT_REFERENCE,
                 transaction_desc=TRANSACTION_DESC,
-                callback_url=CALLBACK_URL
+                callback_url='https://mydomain.com/mpesa-express-simulate/'
             )
             
             context = {

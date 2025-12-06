@@ -1,0 +1,49 @@
+{% extends 'main.html' %}
+
+{% block title %}Confirm Deletion: {{ resource.name }}{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            
+            <div class="card shadow-lg border-0 border-danger border-start-5">
+                <div class="card-header bg-danger text-white text-center py-3">
+                    <h2 class="mb-0"><i class="fas fa-exclamation-triangle me-2"></i> Confirm Resource Deletion</h2>
+                </div>
+                <div class="card-body p-4">
+                    
+                    <p class="lead text-dark">
+                        You are about to permanently delete the following resource:
+                    </p>
+                    
+                    <div class="alert alert-light border p-3 mb-4">
+                        <h4 class="alert-heading text-danger fw-bold">{{ resource.name }}</h4>
+                        <p class="mb-1"><strong>ID:</strong> {{ resource.pk }}</p>
+                        <p class="mb-0"><strong>Category:</strong> {{ resource.get_type_display }}</p>
+                    </div>
+                    
+                    <p class="fw-bold text-danger">
+                        ⚠️ WARNING: This action cannot be undone. All associated future bookings for this resource will also be affected or flagged for admin review.
+                    </p>
+                    
+                    <form method="post" action="{% url 'booking:resource_delete' pk=resource.pk %}" class="mt-4">
+                        {% csrf_token %}
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-danger btn-lg">
+                                <i class="fas fa-trash-alt me-2"></i> Yes, Permanently Delete
+                            </button>
+                            <a href="{% url 'booking:resource_list' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i> Cancel and Go Back to List
+                            </a>
+                        </div>
+                    </form>
+
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</div>
+{% endblock content %}

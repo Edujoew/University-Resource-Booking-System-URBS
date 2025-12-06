@@ -8,10 +8,11 @@ class BookingRequestForm(forms.ModelForm):
     
     class Meta:
         model = BookingRequest
-        fields = ['resource', 'start_time', 'end_time', 'status']
+        fields = ['resource', 'start_time', 'end_time', 'purpose', 'status']
         
         labels = {
-            'resource': 'Resource'
+            'resource': 'Resource',
+            'purpose': 'Purpose of Booking',
         }
         
         widgets = {
@@ -33,6 +34,9 @@ class BookingRequestForm(forms.ModelForm):
                     'placeholder': 'YYYY-MM-DD HH:MM'
                 },
                 format='%Y-%m-%dT%H:%M'
+            ),
+            'purpose': forms.Textarea(
+                attrs={'class': 'form-control', 'rows': 3}
             ),
             'status': forms.Select(
                 attrs={'class': 'form-control'}
@@ -59,6 +63,7 @@ class BookingRequestForm(forms.ModelForm):
             self.fields['resource'].disabled = True
             self.fields['start_time'].disabled = True
             self.fields['end_time'].disabled = True
+            self.fields['purpose'].disabled = True
             self.fields['status'].required = True
             
         elif is_owner:
@@ -69,13 +74,16 @@ class BookingRequestForm(forms.ModelForm):
                 self.fields['resource'].disabled = True
                 self.fields['start_time'].disabled = True
                 self.fields['end_time'].disabled = True
+                self.fields['purpose'].disabled = True
         
-        if self.fields['resource'].disabled:
+        if self.fields.get('resource') and self.fields['resource'].disabled:
             self.fields['resource'].required = False
-        if self.fields['start_time'].disabled:
+        if self.fields.get('start_time') and self.fields['start_time'].disabled:
             self.fields['start_time'].required = False
-        if self.fields['end_time'].disabled:
+        if self.fields.get('end_time') and self.fields['end_time'].disabled:
             self.fields['end_time'].required = False
+        if self.fields.get('purpose') and self.fields['purpose'].disabled:
+            self.fields['purpose'].required = False
 
     
     def clean(self):
@@ -138,10 +146,24 @@ class BookingRequestForm(forms.ModelForm):
         return cleaned_data
 
 
+class ResourceCreationForm(forms.ModelForm):
+    class Meta:
+        model = Resource
+        fields = ['name', 'type', 'description', 'image_url', 'cost', 'capacity_number', 'is_available']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique Resource Name'}),
+            'type': forms.Select(attrs={'class': 'form-select'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Detailed description and use case'}),
+            'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Paste Image URL (optional)'}),
+            'capacity_number': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
+            'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
 class UserRegistrationForm(UserCreationForm):
     email = forms.EmailField(
         required=True,
-        help_text='A valid email address is required.',
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
     )
     

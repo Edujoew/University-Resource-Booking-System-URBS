@@ -21,71 +21,97 @@
 </head>
 <body>
 
-    {# --- NAVIGATION BAR (Header) --- #}
-    <nav class="navbar navbar-expand-lg  bg-info shadow-sm">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="{% url 'booking:home' %}">
-                <i class="fa-solid fa-graduation-cap me-2"></i> UREBS
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav me-auto">
-                    
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">Resources</a>
-                    </li>
-                    
-                    {% if user.is_authenticated %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'booking:my_bookings_dashboard' %}">My Bookings</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand fw-bold" href="{% url 'booking:home' %}">
+            <i class="fas fa-calendar-alt me-2"></i> UREBS
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" aria-current="page" href="{% url 'booking:resource_list' %}">Resources</a>
+                </li>
+                
+                {% if user.is_authenticated %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'booking:my_bookings_dashboard' %}">My Bookings</a>
+                </li>
+                
+                {% if user.is_staff %}
+                <li class="nav-item">
+                </li>
+                {% endif %}
+                {% endif %}
+            </ul>
+            
+            <ul class="navbar-nav ms-auto">
+                
+                {% if user.is_staff or user.is_superuser %}
+                <li class="nav-item dropdown me-3">
+                    <a class="nav-link dropdown-toggle active" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-tools me-1"></i> Admin Management
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                        <li>
+                            <a class="dropdown-item" href="{% url 'booking:create_resource' %}">
+                                <i class="fas fa-plus-circle text-success me-2"></i> Create New Resource
+                            </a>
                         </li>
-                        
-                        {# Admin/Staff Link (Future Issue 8) #}
-                        {% if user.is_staff %}
-                        <li class="nav-item">
-                            <a class="nav-link text-warning" href="{% url 'booking:admin_pending_dashboard' %}">Pending Review</a>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'booking:resource_list' %}">
+                                <i class="fas fa-edit text-warning me-2"></i> Update/Delete Resources
+                            </a>
                         </li>
-                        {% endif %}
-                    {% endif %}
-                </ul>
-                {# Authentication Links (Right Side) #}
-               
-                <ul class="navbar-nav ms-auto">
-                    {% if user.is_authenticated %}
-                        {# Displayed ONLY when logged in #}
-                        <li class="nav-item">
-                            <span class="nav-link text-white">Hello, {{ user.username }}</span>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'booking:admin_pending_dashboard' %}">
+                                <i class="fas fa-clock text-info me-2"></i> Pending Bookings
+                            </a>
                         </li>
-                        <li class="nav-item">
-                            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    </ul>
+                </li>
+                {% endif %}
+
+                {% if user.is_authenticated %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i> Hello, {{ user.username|title }}
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="{% url 'booking:my_bookings_dashboard' %}"><i class="fas fa-list me-2"></i> My Bookings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="nav-link btn btn-sm btn-outline-light ms-2" style="border:none; background:none; cursor:pointer;">Logout</button>
+                                <button type="submit" class="dropdown-item text-danger w-100 text-start">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                                </button>
                             </form>
                         </li>
-                    {% else %}
-                        {# Displayed ONLY when logged OUT #}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'booking:register' %}">Register</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link btn btn-sm btn-success ms-2" href="{% url 'login' %}">Login</a>
-                        </li>
-                    {% endif %}
-                
-                </ul>
-            </div>
+                    </ul>
+                </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'booking:register' %}">Register</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link btn btn-sm btn-success ms-2" href="{% url 'login' %}">Login</a>
+                </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
-    {# --- MAIN CONTENT BLOCK --- #}
     <main class="flex-shrink-0">
         {% block content %}
         {% endblock content %}
     </main>
 
-    {# --- FOOTER --- #}
     <footer class="footer mt-auto py-3 bg-light border-top">
         <div class="container text-center">
             <span class="text-muted">&copy; 2025 University Resource Booking System.</span>

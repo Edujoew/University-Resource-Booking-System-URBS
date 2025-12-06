@@ -5,10 +5,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils import timezone
 import json
 
 from .models import BookingRequest, Resource
-from .forms import BookingRequestForm, UserRegistrationForm
+from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
 
 
 def landing_view(request):
@@ -16,7 +17,26 @@ def landing_view(request):
 
 @login_required
 def home_view(request):
-    return render(request, 'booking/home.html')
+    context = {}
+    
+    if request.user.is_authenticated:
+        user_bookings = BookingRequest.objects.filter(user=request.user)
+        
+        total_bookings = user_bookings.count()
+        pending_bookings = user_bookings.filter(status='PENDING').count()
+        
+        upcoming_bookings = user_bookings.filter(
+            status='APPROVED', 
+            start_time__gte=timezone.now()
+        ).count()
+        
+        context.update({
+            'total_bookings': total_bookings,
+            'pending_bookings': pending_bookings,
+            'upcoming_bookings': upcoming_bookings,
+        })
+    
+    return render(request, 'booking/home.html', context)
 
 def register_view(request):
     if request.method == 'POST':
@@ -48,22 +68,30 @@ def booking_create_view(request):
             resource = booking.resource
             
             if resource and resource.cost > 0:
-                # Resource costs money: Set to PENDING and require payment
                 booking.status = 'PENDING'
                 booking.save() 
                 messages.info(request, "Booking successfully reserved. Please complete payment to confirm.")
-                # Redirect to payment/success page path
                 return redirect('booking:booking_success', pk=booking.pk)
                 
             else:
-                # Resource is FREE (cost <= 0): Approve immediately
                 booking.status = 'APPROVED'
                 booking.save()
                 messages.success(request, "Booking successfully created (no payment required).")
-                # Redirect to success page path
                 return redirect('booking:booking_success', pk=booking.pk)
+        
+        else:
+            messages.error(request, "Error submitting booking. Please check the form fields below for details.")
     else:
-        form = BookingRequestForm()
+        initial_data = {}
+        resource_pk = request.GET.get('resource')
+        if resource_pk:
+             try:
+                 resource = Resource.objects.get(pk=resource_pk)
+                 initial_data['resource'] = resource
+             except Resource.DoesNotExist:
+                 pass
+        
+        form = BookingRequestForm(initial=initial_data)
 
     resources = Resource.objects.filter(is_available=True)
     
@@ -144,7 +172,7 @@ def modify_booking(request, pk):
                 
                 form.save()
                 messages.success(request, f"Booking ID {pk} status successfully updated to {booking.status}.")
-                return redirect('booking:admin_pending_dashboard') 
+                return redirect('booking:admin_pending_requests') 
         else:
             messages.error(request, "There was an error with your submission. Please check the form. Errors shown below.")
             
@@ -184,4 +212,76 @@ def cancel_booking(request, pk):
 
 
 def resource_list(request):
-    return render(request, 'booking/resource_list.html', {})
+    resources = Resource.objects.filter(is_available=True).order_by('name')
+    context = {
+        'resources': resources
+    }
+    return render(request, 'booking/resource_list.html', context)
+
+
+@login_required
+def create_resource_view(request):
+    if not request.user.is_staff and not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied. Only authorized staff can create resources.")
+
+    if request.method == 'POST':
+        form = ResourceCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"New resource '{form.cleaned_data['name']}' created successfully.")
+            return redirect(reverse_lazy('booking:resource_list'))
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = ResourceCreationForm()
+
+    context = {
+        'form': form
+    }
+    return render(request, 'booking/resource_create_form.html', context)
+
+
+@login_required
+def resource_update_view(request, pk):
+    if not request.user.is_staff and not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied. Only authorized staff can modify resources.")
+
+    resource = get_object_or_404(Resource, pk=pk)
+
+    if request.method == 'POST':
+        form = ResourceCreationForm(request.POST, instance=resource)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"Resource '{resource.name}' updated successfully.")
+            return redirect(reverse_lazy('booking:resource_list')) 
+        else:
+            messages.error(request, "Please correct the errors below.")
+    else:
+        form = ResourceCreationForm(instance=resource)
+
+    context = {
+        'form': form,
+        'resource': resource,
+    }
+    return render(request, 'booking/resource_update_form.html', context)
+
+
+@login_required
+def resource_delete_view(request, pk):
+    if not request.user.is_staff and not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied. Only authorized staff can delete resources.")
+
+    resource = get_object_or_404(Resource, pk=pk)
+
+    if request.method == 'POST':
+        resource.delete()
+        messages.success(request, f"Resource '{resource.name}' was successfully deleted.")
+        return redirect(reverse_lazy('booking:resource_list'))
+
+    context = {
+        'resource': resource
+    }
+    return render(request, 'booking/resource_confirm_delete.html', context)
+
+def logged_out_view(request):
+    return render(request, 'registration/logged_out.html')

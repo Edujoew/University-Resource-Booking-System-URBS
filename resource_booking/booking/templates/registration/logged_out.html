@@ -1,15 +1,67 @@
 {% extends "main.html" %}
 
-{% block title %}Logged Out{% endblock %}
+{% block title %}Logged Out{% endblock title %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="alert alert-info text-center shadow-sm" role="alert">
-        <h4 class="alert-heading">👋 You have been successfully logged out!</h4>
-        <p>Thank you for using the Resource Booking System.</p>
-        <hr>
-        <a href="{% url 'login' %}" class="btn btn-success">Log In Again</a>
-        <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary">Return Home</a>
+<style>
+.logout-hero {
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.logout-card-bg {
+    /* Set a specific image background for the card area */
+    background-image: url("https://images.unsplash.com/photo-1543269865-cbe426643c1f?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D");
+    background-size: cover;
+    background-position: center;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    max-width: 500px;
+}
+
+.logout-content {
+    /* Semi-transparent overlay for text readability over the card's background image */
+    background-color: rgba(255, 255, 255, 0.9);
+    padding: 3rem;
+    min-height: 400px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+</style>
+
+<div class="container-fluid logout-hero">
+    <div class="row justify-content-center w-100">
+        <div class="col-12 col-md-8 col-lg-6">
+            <div class="logout-card-bg">
+                <div class="logout-content">
+                    <div class="mb-4">
+                        <i class="bi bi-box-arrow-right display-1 text-danger"></i>
+                    </div>
+                    
+                    <h1 class="display-5 text-dark fw-bold mb-3">Session Ended</h1>
+                    
+                    <p class="lead text-muted">You have been successfully logged out from the University Resource Booking System.</p>
+                    
+                    <hr class="my-4">
+                    
+                    <p class="mb-4">Ready to resume your activities?</p>
+
+                    <div class="d-grid gap-3 d-sm-flex justify-content-sm-center">
+                        <a href="{% url 'login' %}" class="btn btn-success btn-lg px-4 me-sm-3">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Log In Again
+                        </a>
+                        <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary btn-lg px-4">
+                            <i class="bi bi-house-door-fill me-2"></i> Return Home
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
-{% endblock  %}
+{% endblock %}

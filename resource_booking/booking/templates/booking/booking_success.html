@@ -1,0 +1,36 @@
+{% extends "main.html" %}
+{% load static %}
+
+{% block title %}Booking Successful{% endblock title %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow text-center">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0">✅ Booking Request Submitted Successfully</h3>
+                </div>
+                <div class="card-body">
+                    {% if booking_status == 'APPROVED' %}
+                        <h4 class="text-success">Confirmed!</h4>
+                        <p class="lead">Your resource has been successfully booked and **APPROVED** (no payment required).</p>
+                    {% elif booking_status == 'PENDING' %}
+                        <h4 class="text-warning">Pending Payment</h4>
+                        <p class="lead">Your booking has been reserved and is currently **PENDING** payment. Please complete payment to confirm your booking.</p>
+                    {% else %}
+                        <h4 class="text-info">Request Submitted</h4>
+                        <p class="lead">Your booking request has been submitted successfully.</p>
+                    {% endif %}
+
+                    <hr>
+                    <p>You can view the status of your booking in your dashboard.</p>
+                    
+                    <a href="{% url 'booking:my_bookings_dashboard' %}" class="btn btn-primary mt-3 me-2">Go to My Bookings Dashboard</a>
+                    <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary mt-3">Return to Homepage</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

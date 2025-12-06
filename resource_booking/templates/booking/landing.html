@@ -1,258 +1,115 @@
 {% extends 'main.html' %}
 
 {% block content %}
-<style>
-    .landing-hero {
-        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #00a86b 100%);
-        background-attachment: fixed;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-        overflow: hidden;
-    }
+<div class="vh-100 bg-primary position-relative overflow-hidden d-flex align-items-center justify-content-center text-white">
+    
+    <div class="position-absolute w-100 h-100" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #00a86b 100%); z-index: 0;"></div>
+    
+    <div class="container text-center py-5 position-relative" style="z-index: 1;">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="display-3 fw-bolder mb-3 text-shadow">🎓 UNIVERSITY RESOURCE BOOKING SYSTEM</h1>
+                
+                <p class="lead mb-4 fw-light opacity-75">
+                    Your One-Stop Solution for Smart Resource Management
+                </p>
 
-    .landing-hero::before {
-        content: '';
-        position: absolute;
-        width: 400px;
-        height: 400px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        top: -50px;
-        right: -50px;
-        animation: float 6s ease-in-out infinite;
-    }
+                <p class="mb-5 mx-auto opacity-75" style="max-width: 700px;">
+                    Effortlessly view, request, and manage university resources — from lecture halls and laboratories to specialized equipment. Book what you need, when you need it.
+                </p>
 
-    .landing-hero::after {
-        content: '';
-        position: absolute;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
-        border-radius: 50%;
-        bottom: -100px;
-        left: -100px;
-        animation: float 8s ease-in-out infinite reverse;
-    }
-
-    @keyframes float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(20px); }
-    }
-
-    .landing-content {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        color: white;
-        max-width: 800px;
-        animation: slideUp 0.8s ease-out;
-    }
-
-    @keyframes slideUp {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .landing-title {
-        font-size: 3.5rem;
-        font-weight: 900;
-        margin-bottom: 20px;
-        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-        letter-spacing: -1px;
-    }
-
-    .landing-subtitle {
-        font-size: 1.2rem;
-        margin-bottom: 40px;
-        line-height: 1.8;
-        opacity: 0.95;
-        font-weight: 300;
-    }
-
-    .landing-description {
-        font-size: 1rem;
-        margin-bottom: 50px;
-        opacity: 0.9;
-        font-weight: 400;
-        line-height: 1.6;
-    }
-
-    .cta-buttons {
-        display: flex;
-        gap: 20px;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .btn-landing {
-        padding: 15px 45px;
-        font-size: 1.1rem;
-        font-weight: 600;
-        border-radius: 50px;
-        transition: all 0.3s ease;
-        text-decoration: none;
-        display: inline-block;
-        border: none;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    }
-
-    .btn-login {
-        background: rgba(255, 255, 255, 0.95);
-        color: #1e3c72;
-    }
-
-    .btn-login:hover {
-        background: white;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-register {
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
-        border: 2px solid rgba(255, 255, 255, 0.8);
-    }
-
-    .btn-register:hover {
-        background: rgba(255, 255, 255, 0.3);
-        border-color: white;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .features-section {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 30px;
-        margin-top: 80px;
-        opacity: 0.9;
-    }
-
-    .feature-card {
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
-        padding: 30px;
-        border-radius: 15px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-
-    .feature-card:hover {
-        background: rgba(255, 255, 255, 0.15);
-        transform: translateY(-5px);
-        border-color: rgba(255, 255, 255, 0.4);
-    }
-
-    .feature-icon {
-        font-size: 2.5rem;
-        margin-bottom: 15px;
-    }
-
-    .feature-title {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 10px;
-    }
-
-    .feature-description {
-        font-size: 0.95rem;
-        opacity: 0.9;
-        line-height: 1.5;
-    }
-
-    @media (max-width: 768px) {
-        .landing-title {
-            font-size: 2.5rem;
-        }
-
-        .landing-subtitle {
-            font-size: 1rem;
-        }
-
-        .cta-buttons {
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .btn-landing {
-            width: 100%;
-        }
-    }
-</style>
-
-<div class="landing-hero">
-    <div class="landing-content">
-        <h1 class="landing-title">🎓 UNIVERSITY RESOURCE BOOKING SYSTEM</h1>
-        
-        <p class="landing-subtitle">
-            Your One-Stop Solution for Smart Resource Management
-        </p>
-
-        <p class="landing-description">
-            Effortlessly view, request, and manage university resources — from lecture halls and laboratories to specialized equipment. Book what you need, when you need it.
-        </p>
-
-        <div class="cta-buttons">
-            <a href="{% url 'login' %}" class="btn-landing btn-login">
-                <i class="fas fa-sign-in-alt"></i> Log In Now
-            </a>
-            <a href="{% url 'booking:register' %}" class="btn-landing btn-register">
-                <i class="fas fa-user-plus"></i> Create Account
-            </a>
+                <div class="d-grid gap-3 d-sm-flex justify-content-center mb-5">
+                    <a href="{% url 'login' %}" class="btn btn-light btn-lg px-5 shadow-lg fw-bold">
+                        <i class="fas fa-sign-in-alt me-2"></i> Log In Now
+                    </a>
+                    <a href="{% url 'booking:register' %}" class="btn btn-outline-light btn-lg px-5 shadow-lg fw-bold">
+                        <i class="fas fa-user-plus me-2"></i> Create Account
+                    </a>
+                </div>
+            </div>
         </div>
 
-        <div class="features-section">
-            <div class="feature-card">
-                <div class="feature-icon">📅</div>
-                <div class="feature-title">Easy Booking</div>
-                <div class="feature-description">Schedule resources in seconds with our intuitive interface</div>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-5 pt-3">
+            
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">📅</div>
+                        <h5 class="card-title fw-bold">Easy Booking</h5>
+                        <p class="card-text opacity-75">Schedule resources in seconds with our intuitive interface</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">💳</div>
-                <div class="feature-title">Secure Payments</div>
-                <div class="feature-description">Pay seamlessly via M-Pesa for premium resources</div>
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">💳</div>
+                        <h5 class="card-title fw-bold">Secure Payments</h5>
+                        <p class="card-text opacity-75">Pay seamlessly via M-Pesa for premium resources</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">📱</div>
-                <div class="feature-title">Mobile Friendly</div>
-                <div class="feature-description">Access from any device, anywhere, anytime</div>
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">📱</div>
+                        <h5 class="card-title fw-bold">Mobile Friendly</h5>
+                        <p class="card-text opacity-75">Access from any device, anywhere, anytime</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">🔐</div>
-                <div class="feature-title">Secure & Reliable</div>
-                <div class="feature-description">Your data is protected with enterprise-grade security</div>
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">🔐</div>
+                        <h5 class="card-title fw-bold">Secure & Reliable</h5>
+                        <p class="card-text opacity-75">Your data is protected with enterprise-grade security</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">⚡</div>
-                <div class="feature-title">Real-time Updates</div>
-                <div class="feature-description">Get instant notifications about your bookings</div>
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">⚡</div>
+                        <h5 class="card-title fw-bold">Real-time Updates</h5>
+                        <p class="card-text opacity-75">Get instant notifications about your bookings</p>
+                    </div>
+                </div>
             </div>
 
-            <div class="feature-card">
-                <div class="feature-icon">🎯</div>
-                <div class="feature-title">Smart Management</div>
-                <div class="feature-description">Track all your reservations in one place</div>
+            <div class="col">
+                <div class="card h-100 bg-light bg-opacity-10 border-light text-white text-start p-2 shadow-sm feature-card-hover">
+                    <div class="card-body">
+                        <div class="fs-2 mb-2">🎯</div>
+                        <h5 class="card-title fw-bold">Smart Management</h5>
+                        <p class="card-text opacity-75">Track all your reservations in one place</p>
+                    </div>
+                </div>
             </div>
+            
         </div>
     </div>
 </div>
 
-<footer style="background: rgba(0,0,0,0.9); color: white; text-align: center; padding: 30px; margin-top: 0;">
-    <p>&copy; 2025 University Resource Booking System. All rights reserved.</p>
-</footer>
+<style>
+.text-shadow {
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+.feature-card-hover {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(5px);
+}
+.feature-card-hover:hover {
+    transform: translateY(-5px);
+    background-color: rgba(255, 255, 255, 0.2) !important;
+}
+</style>
 
+<footer class="bg-dark text-white text-center py-3">
+    <p class="mb-0">&copy; 2025 University Resource Booking System. All rights reserved.</p>
+</footer>
 {% endblock %}

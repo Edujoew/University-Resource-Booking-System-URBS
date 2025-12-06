@@ -129,14 +129,14 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Redirects after login/logout
-# After login, redirect users to the authenticated home page.
+
 LOGIN_REDIRECT_URL = '/home/'
-# After logout, send users back to the public landing page (root).
-LOGOUT_REDIRECT_URL = '/'
 
-# --- NEW ADDITIONS FOR AUTHENTICATION & FORMS ---
+LOGOUT_REDIRECT_URL = 'login'
 
-# Define the form library to use with Crispy Forms
+
+
+
 CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
 CRISPY_TEMPLATE_PACK = "bootstrap5"
 

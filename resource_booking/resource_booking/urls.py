@@ -20,4 +20,6 @@ urlpatterns = [
     
     # Booking app URLs
     path('', include('booking.urls')),
+    
+    
 ]

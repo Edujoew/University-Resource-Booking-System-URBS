@@ -5,30 +5,77 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col-md-8">
-            <h2 class="mb-1 text-primary">📚 My Booking Dashboard</h2>
-            <p class="text-muted">Quick view of your pending, confirmed and past bookings.</p>
-        </div>
-        <div class="col-md-4 text-md-end align-self-center">
-            <a href="{% url 'booking:new_booking' %}" class="btn btn-primary">New Booking</a>
-            <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary ms-2">Explore Resources</a>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <div class="card bg-dark text-white shadow-lg mb-5 border-0">
+        <div class="card-body p-4 p-md-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="mb-1 fw-bold">👋 Welcome, {{ user.first_name|default:user.username }}!</h1>
+                    <p class="lead text-white-50">Manage all your University Resource reservations here. Your schedule at a glance.</p>
+                </div>
+                <div class="col-md-4 text-md-end mt-3 mt-md-0">
+                    <a href="{% url 'booking:new_booking' %}" class="btn btn-success btn-lg shadow-sm">
+                        <i class="bi bi-calendar-plus me-2"></i> New Booking
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
-
+    
+    {% if total_bookings or pending_count %}
+        <div class="row mb-5">
+            <div class="col-md-6 mb-3">
+                <div class="card bg-warning text-dark h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-clock-fill display-5 me-3 opacity-50"></i>
+                            <div>
+                                <div class="fs-6 text-uppercase fw-bold">Pending Requests</div>
+                                <h4 class="mb-0 fw-bold">{{ pending_count|default:"0" }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-3">
+                <div class="card bg-light h-100 shadow-sm">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center">
+                            <i class="bi bi-journal-check display-5 me-3 text-primary opacity-50"></i>
+                            <div>
+                                <div class="fs-6 text-uppercase fw-bold text-muted">Total Bookings</div>
+                                <h4 class="mb-0 fw-bold">{{ total_bookings|default:"0" }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    
     <div class="row">
         <div class="col-lg-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Pending Review</h5>
-                    <p class="card-subtitle text-muted mb-3">Action required for bookings pending approval or payment.</p>
-
+            <div class="card shadow-lg h-100">
+                <div class="card-header bg-warning text-dark fw-bold">
+                    <i class="bi bi-clock me-2"></i> Bookings Pending Review / Payment
+                </div>
+                <div class="card-body p-3">
                     {% if pending_bookings %}
                         {% include 'booking/partials/booking_list_table.html' with booking_list=pending_bookings %}
                     {% else %}
-                        <div class="text-center py-4">
+                        <div class="text-center py-5">
                             <i class="bi bi-check-circle-fill text-success fs-1"></i>
-                            <p class="mt-3 mb-0 text-muted">You have no bookings currently pending review.</p>
+                            <p class="mt-3 mb-0 text-muted">You have no bookings currently pending review or payment.</p>
+                            <a href="{% url 'booking:new_booking' %}" class="btn btn-sm btn-outline-success mt-3">Book a Resource</a>
                         </div>
                     {% endif %}
                 </div>
@@ -36,17 +83,18 @@
         </div>
 
         <div class="col-lg-6 mb-4">
-            <div class="card shadow-sm h-100">
-                <div class="card-body">
-                    <h5 class="card-title">Past & Confirmed</h5>
-                    <p class="card-subtitle text-muted mb-3">History of your approved and completed bookings.</p>
-
+            <div class="card shadow-lg h-100">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="bi bi-calendar-check me-2"></i> Approved & Past Bookings
+                </div>
+                <div class="card-body p-3">
                     {% if past_bookings %}
                         {% include 'booking/partials/booking_list_table.html' with booking_list=past_bookings %}
                     {% else %}
-                        <div class="text-center py-4">
+                        <div class="text-center py-5">
                             <i class="bi bi-journal-text text-info fs-1"></i>
                             <p class="mt-3 mb-0 text-muted">You have not submitted any booking requests yet.</p>
+                            <a href="{% url 'booking:home' %}" class="btn btn-sm btn-outline-secondary mt-3">Explore Resources</a>
                         </div>
                     {% endif %}
                 </div>

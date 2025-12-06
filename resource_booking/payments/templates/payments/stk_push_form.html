@@ -1,0 +1,63 @@
+{% extends 'main.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h1 class="card-title h3 mb-0"><i class="fas fa-money-bill-wave me-2"></i> Book Now - M-Pesa STK Push</h1>
+                </div>
+                <div class="card-body">
+                    
+                    <h5 class="card-subtitle mb-3 text-muted">Confirm Payment for Booking #{{ booking.pk }}</h5>
+                    
+                    <ul class="list-group mb-4">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            **Resource:**
+                            <span>{{ booking.resource.name }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            **Start Time:**
+                            <span>{{ booking.start_time|date:"D, d M Y H:i" }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center bg-light fw-bold">
+                            **Amount Due:**
+                            <span class="text-success h5 mb-0">KES {{ cost }}</span>
+                        </li>
+                    </ul>
+
+                    <form action="{% url 'booking:initiate_payment' pk=booking.pk %}" method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label fw-bold">M-Pesa Phone Number</label>
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" placeholder="e.g., 07..." required>
+                            <div id="phoneNumberHelp" class="form-text">
+                                We'll send an **M-Pesa STK Push prompt** to this number.
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="amount" class="form-label fw-bold">Amount (Ksh)</label>
+                            <input type="number" class="form-control" id="amount" name="amount" value="{{ cost }}" readonly required>
+                        </div> 
+                        <button type="submit" class="btn btn-success btn-lg w-100 mt-3">
+                            <i class="fas fa-arrow-alt-circle-right me-2"></i> Initiate Payment
+                        </button>
+                    </form>
+                </div>
+                <div class="card-footer text-muted text-center">
+                    <small>Powered by M-Pesa STK Push</small>
+                </div>
+            </div>
+            </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+    {% if response %}
+    <div class="alert alert-info bg-dark text-light">
+        <strong>Payment Status:</strong> {{ response }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

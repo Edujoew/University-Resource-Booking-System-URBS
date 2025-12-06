@@ -8,8 +8,11 @@ from django.contrib import messages
 from django.utils import timezone
 import json
 
+
 from .models import BookingRequest, Resource
 from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
+
+
 
 
 def landing_view(request):
@@ -71,7 +74,7 @@ def booking_create_view(request):
                 booking.status = 'PENDING'
                 booking.save() 
                 messages.info(request, "Booking successfully reserved. Please complete payment to confirm.")
-                return redirect('booking:booking_success', pk=booking.pk)
+                return redirect('booking:initiate_payment', pk=booking.pk)
                 
             else:
                 booking.status = 'APPROVED'
@@ -80,7 +83,7 @@ def booking_create_view(request):
                 return redirect('booking:booking_success', pk=booking.pk)
         
         else:
-            messages.error(request, "Error submitting booking. Please check the form fields below for details.")
+            pass
     else:
         initial_data = {}
         resource_pk = request.GET.get('resource')
@@ -111,6 +114,15 @@ def booking_success_view(request, pk):
     }
     return render(request, 'booking/booking_success.html', context)
 
+@login_required
+def initiate_stk_push_view(request, pk):
+    booking = get_object_or_404(BookingRequest, pk=pk, user=request.user)
+    
+    context = {
+        'booking': booking,
+        'cost': booking.resource.cost,
+    }
+    return render(request, 'payments/stk_push_form.html', context)
 
 @login_required 
 def my_bookings_dashboard(request):

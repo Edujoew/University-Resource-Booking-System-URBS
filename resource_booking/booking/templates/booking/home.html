@@ -1,20 +1,21 @@
 {% extends "main.html" %}
+{% load static %}
 
 {% block title %}Welcome{% endblock title %}
 
 {% block content %}
 <style>
 .homepage-hero {
-    background: linear-gradient(135deg, #e0f7fa 0%, #b3e0ff 100%);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #f0f8ff 0%, #d6eaff 100%);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
     border-radius: 1rem;
     overflow: hidden;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .homepage-hero:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
 }
 
 .homepage-hero .display-5 {
@@ -24,35 +25,41 @@
     margin-bottom: 1rem;
 }
 
-.feature-card-content {
-    background-color: rgba(255, 255, 255, 0.9);
-    border: 1px solid #dee2e6;
-    border-radius: 0.5rem;
-    padding: 2rem;
-    text-align: center;
-    transition: background-color 0.3s ease, border-color 0.3s ease;
+.stat-card {
+    border-radius: 0.75rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    border: 1px solid #e9ecef;
 }
 
-.feature-card-content:hover {
-    background-color: #f8f9fa;
-    border-color: #007bff;
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.feature-card-content i {
-    font-size: 3rem;
-    color: #007bff;
-    margin-bottom: 1rem;
+.stat-icon {
+    font-size: 2.2rem;
+    opacity: 0.7;
 }
 
-.feature-card-content h2 {
-    font-size: 1.75rem;
-    color: #343a40;
+.activity-list {
+    list-style: none;
+    padding: 0;
+}
+
+.activity-list li {
+    padding: 0.75rem 0;
+    border-bottom: 1px solid #eee;
+}
+
+.activity-list li:last-child {
+    border-bottom: none;
 }
 </style>
 
 <div class="container mt-5">
     
-    <div class="p-5 mb-4 homepage-hero text-dark">
+    <div class="p-5 mb-5 homepage-hero text-dark">
         <div class="container-fluid py-5">
             <h1 class="display-5 fw-bold"><i class="fa-solid fa-calendar-check me-3"></i> University Resource Booking Portal</h1>
             <p class="col-md-8 fs-4 text-secondary">
@@ -80,23 +87,88 @@
         </div>
     </div>
     
+    {% if user.is_authenticated %}
     <div class="row pt-4 g-4">
-        <div class="col-md-6">
-            <div class="feature-card-content h-100">
-                <i class="fa-solid fa-building-user"></i>
-                <h2>Reserve a Space</h2>
-                <p class="text-muted">Book classrooms, labs, study rooms, and lecture halls for your official university use easily and instantly.</p>
-                <a href="{% url 'booking:home' %}" class="btn btn-primary mt-3 w-75">Browse Spaces &raquo;</a>
+        
+        <div class="col-md-8">
+            <h3 class="mb-4 text-primary fw-bold">📊 Your Booking Summary</h3>
+            <div class="row g-3">
+                
+                <div class="col-sm-4">
+                    <div class="card stat-card bg-light shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-list-alt text-secondary stat-icon mb-2"></i>
+                            <h5 class="card-title text-muted text-uppercase small">Total Bookings</h5>
+                            <p class="card-text display-4 fw-bold text-dark">{{ total_bookings|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-sm-4">
+                    <div class="card stat-card bg-light shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-clock text-warning stat-icon mb-2"></i>
+                            <h5 class="card-title text-muted text-uppercase small">Pending Review</h5>
+                            <p class="card-text display-4 fw-bold text-warning">{{ pending_bookings|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-sm-4">
+                    <div class="card stat-card bg-light shadow-sm">
+                        <div class="card-body">
+                            <i class="fas fa-calendar-check text-success stat-icon mb-2"></i>
+                            <h5 class="card-title text-muted text-uppercase small">Upcoming</h5>
+                            <p class="card-text display-4 fw-bold text-success">{{ upcoming_bookings|default:"0" }}</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            
+            {% if user.is_staff or user.is_superuser %}
+            <div class="alert alert-info mt-4 shadow-sm" role="alert">
+                <i class="fas fa-tools me-2"></i> You have **Admin Privileges**. Access all resource and booking management tools via the **Admin Management** dropdown in the navigation bar.
+            </div>
+            {% endif %}
+            
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-primary text-white fw-bold">
+                    <i class="fas fa-history me-2"></i> Recent Activity
+                </div>
+                <div class="card-body">
+                    <p class="text-center text-muted small mt-4">
+                        <i class="fas fa-info-circle me-1"></i> Activity data will be displayed here dynamically.
+                    </p>
+                    <a href="{% url 'booking:my_bookings_dashboard' %}" class="btn btn-sm btn-outline-secondary w-100 mt-2">View Full History</a>
+                </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="feature-card-content h-100">
-                <i class="fa-solid fa-camera"></i>
-                <h2>Equipment Rentals</h2>
-                <p class="text-muted">Reserve projectors, laptops, cameras, and other technical equipment needed for your academic projects or events.</p>
-                <a href="{% url 'booking:home' %}" class="btn btn-primary mt-3 w-75">Browse Equipment &raquo;</a>
+    </div>
+    {% endif %}
+
+    {% if not user.is_authenticated %}
+    <div class="row pt-4 g-4 text-center">
+        <div class="col-12">
+            <div class="p-5 border rounded-3 bg-light shadow-sm">
+                <h2 class="fw-bold text-primary mb-3">Ready to Book?</h2>
+                <p class="lead text-muted">Log in to view your personalized dashboard and quickly reserve classrooms or equipment.</p>
+                <a href="{% url 'login' %}" class="btn btn-success btn-lg mt-3 me-3">
+                    <i class="fa-solid fa-arrow-right-to-bracket me-1"></i> Log In
+                </a>
+                <a href="{% url 'booking:register' %}" class="btn btn-outline-secondary btn-lg mt-3">
+                    Register Now
+                </a>
             </div>
         </div>
+    </div>
+    {% endif %}
+    
+    <div class="text-center mt-5 mb-3 p-3 border-top">
+        <p class="text-muted small mb-0">Need help? Check out the <a href="#" class="text-decoration-none">FAQ</a> or <a href="#" class="text-decoration-none">Contact Support</a>.</p>
     </div>
 </div>
 {% endblock content %}

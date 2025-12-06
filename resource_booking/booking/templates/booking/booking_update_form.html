@@ -1,72 +1,46 @@
-{% extends "main.html" %}
+{% extends 'main.html' %}
+
+{% block title %}Booking Successful!{% endblock title %}
 
 {% block content %}
-    <div class="container py-4">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">
-                            {% if is_admin %}
-                                Admin Review: Booking #{{ booking.pk }}
-                            {% else %}
-                                Modify My Booking: Booking #{{ booking.pk }}
-                            {% endif %}
-                        </h4>
-                    </div>
-                    <div class="card-body">
-                        {% if messages %}
-                            {% for message in messages %}
-                                <div class="alert alert-{{ message.tags }}" role="alert">
-                                    {{ message }}
-                                </div>
-                            {% endfor %}
-                        {% endif %}
+<div class="container py-5">
+    <div class="card shadow-lg p-5 text-center border-0" style="max-width: 600px; margin: 0 auto;">
+        <i class="fas fa-check-circle fa-5x mb-4 {% if booking_status == 'PENDING' %}text-warning{% else %}text-success{% endif %}"></i>
+        
+        <h1 class="fw-bold mb-3">
+            {% if booking_status == 'PENDING' %}
+                Request Submitted
+            {% else %}
+                Booking Confirmed!
+            {% endif %}
+        </h1>
+        
+        <p class="lead text-muted mb-4">
+            Your booking request (ID: **{{ booking.pk }}**) for **{{ booking.resource.name }}** has been processed.
+        </p>
 
-                        <form method="post">
-                            {% csrf_token %}
-
-                            <div class="mb-3">
-                                <label for="{{ form.resource.id_for_label }}" class="form-label">Resource</label>
-                                {{ form.resource }}
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.start_time.id_for_label }}" class="form-label">Start Date & Time</label>
-                                    {{ form.start_time }}
-                                    {% if form.start_time.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.start_time.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="col-md-6 mb-3">
-                                    <label for="{{ form.end_time.id_for_label }}" class="form-label">End Date & Time</label>
-                                    {{ form.end_time }}
-                                    {% if form.end_time.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.end_time.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-
-                            {% if is_admin %}
-                                <div class="mb-3">
-                                    <label for="{{ form.status.id_for_label }}" class="form-label">Update Status</label>
-                                    {{ form.status }}
-                                    {% if form.status.errors %}
-                                        <div class="invalid-feedback d-block">{{ form.status.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <button type="submit" class="btn btn-success btn-lg w-100">Approve / Reject</button>
-                            {% else %}
-                                <div class="alert alert-warning">
-                                    Note: Modifying the time/date will reset this booking's status to PENDING for admin review.
-                                </div>
-                                <button type="submit" class="btn btn-primary btn-lg w-100">Update Booking Time</button>
-                            {% endif %}
-                        </form>
-                    </div>
-                </div>
-            </div>
+        {% if booking_status == 'PENDING' %}
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle me-2"></i> 
+            This resource requires **payment/admin approval**. Your booking is currently **pending review**. You will be notified of the status change.
+        </div>
+        {% else %}
+        <div class="alert alert-success">
+            <i class="fas fa-calendar-check me-2"></i> 
+            Your booking is **APPROVED** for {{ booking.start_time|date:"D, d M" }} from {{ booking.start_time|time:"H:i" }} to {{ booking.end_time|time:"H:i" }}.
+        </div>
+        {% endif %}
+        
+        <hr class="my-4">
+        
+        <div class="d-grid gap-2">
+            <a href="{% url 'booking:my_bookings_dashboard' %}" class="btn btn-primary btn-lg">
+                <i class="fas fa-list-ul me-2"></i> View My Bookings
+            </a>
+            <a href="{% url 'booking:resource_list' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-boxes me-2"></i> Browse More Resources
+            </a>
         </div>
     </div>
+</div>
 {% endblock content %}

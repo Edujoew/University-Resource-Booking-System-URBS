@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
+from django.db.models import Sum
 from .models import BookingRequest, Resource
 
 class BookingRequestForm(forms.ModelForm):
@@ -134,13 +135,15 @@ class BookingRequestForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             conflicting_bookings = conflicting_bookings.exclude(pk=self.instance.pk)
 
-        if conflicting_bookings.exists():
-            
-            conflict_id = conflicting_bookings.first().pk 
+        # New quantitative availability check
+        booked_quantity = conflicting_bookings.count()
+        available_quantity = resource.quantity_available if resource else 0
+
+        if booked_quantity >= available_quantity:
             
             raise ValidationError(
-                f"Conflict detected! The resource '{resource.name}' is already booked during this time. "
-                f"See existing booking #{conflict_id}."
+                f"The resource '{resource.name}' is fully booked ({booked_quantity} of {available_quantity} units reserved) "
+                f"between {start_time.strftime('%Y-%m-%d %H:%M')} and {end_time.strftime('%Y-%m-%d %H:%M')}."
             )
             
         return cleaned_data
@@ -149,13 +152,13 @@ class BookingRequestForm(forms.ModelForm):
 class ResourceCreationForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['name', 'type', 'description', 'image_url', 'cost', 'capacity_number', 'is_available']
+        fields = ['name', 'type', 'description', 'image_url', 'cost', 'quantity_available', 'is_available']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique Resource Name'}),
             'type': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Detailed description and use case'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Paste Image URL (optional)'}),
-            'capacity_number': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            'quantity_available': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
             'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

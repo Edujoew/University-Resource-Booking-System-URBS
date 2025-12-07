@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 
 User = get_user_model() 
@@ -37,7 +38,7 @@ class Resource(models.Model):
         null=True, 
     )
     
-    capacity_number = models.PositiveIntegerField(
+    quantity_available = models.PositiveIntegerField(
         default=1, 
     )
     cost = models.DecimalField(
@@ -63,12 +64,14 @@ class BookingRequest(models.Model):
     STATUS_APPROVED = 'APPROVED'
     STATUS_REJECTED = 'REJECTED'
     STATUS_CANCELLED = 'CANCELLED'
+    STATUS_ARCHIVED = 'ARCHIVED'
     
     STATUS_CHOICES = [
         (STATUS_PENDING, 'Pending Review'),
         (STATUS_APPROVED, 'Approved'),
         (STATUS_REJECTED, 'Rejected'),
         (STATUS_CANCELLED, 'Cancelled'),
+        (STATUS_ARCHIVED, 'Archived'),
     ]
 
     PAYMENT_NOT_REQUIRED = 'NOT_REQUIRED'

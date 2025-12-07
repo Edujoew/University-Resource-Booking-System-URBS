@@ -7,13 +7,17 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 import json
-
-
+from decimal import Decimal # <--- 1. ADDED IMPORT FOR DECIMAL
 from .models import BookingRequest, Resource
 from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
+from django.http import HttpResponse
+from django_daraja.mpesa.core import MpesaClient
 
 
 
+def index(request):
+    return HttpResponse("")
+    
 
 def landing_view(request):
     return render(request, 'booking/landing.html')
@@ -118,11 +122,53 @@ def booking_success_view(request, pk):
 def initiate_stk_push_view(request, pk):
     booking = get_object_or_404(BookingRequest, pk=pk, user=request.user)
     
+    if booking.start_time and booking.end_time:
+        duration = booking.end_time - booking.start_time
+        duration_in_hours_float = duration.total_seconds() / 3600
+        
+        # 2. FIX: Convert float to Decimal before multiplication
+        duration_in_hours_decimal = Decimal(str(duration_in_hours_float))
+        
+        # Perform multiplication: Decimal * Decimal
+        total_cost = round(booking.resource.cost * duration_in_hours_decimal, 2)
+    else:
+        total_cost = booking.resource.cost
+    
+    if request.method == 'POST':
+        
+        phone_number = request.POST.get('phoneNumber')
+        try:
+            # Note: M-Pesa often requires a minimum amount of KES 1. 
+            # We cast to float first to handle decimal input, then to int for M-Pesa API.
+            amount = int(float(request.POST.get('amount')))
+            if amount <= 0:
+                 raise ValueError("Amount must be positive.")
+        except (ValueError, TypeError):
+            messages.error(request, "Invalid amount provided for M-Pesa.")
+            return redirect('booking:initiate_payment', pk=pk)
+            
+        cl = MpesaClient()
+        account_reference = f'BOOKING_{booking.pk}'
+        transaction_desc = f'Payment for {booking.resource.name} Booking #{booking.pk}'
+        callback_url = 'https://api.darajambili.com/express-payment' 
+        
+        try:
+            response = cl.stk_push(phone_number, amount, account_reference, transaction_desc, callback_url)
+            
+            messages.success(request, f"M-Pesa prompt sent to {phone_number}. Please check your phone to complete the KES {amount} payment.")
+            
+            return redirect('booking:my_bookings_dashboard') 
+            
+        except Exception as e:
+            messages.error(request, f"Payment initiation failed. Error: {e}")
+            
     context = {
         'booking': booking,
-        'cost': booking.resource.cost,
+        'cost': total_cost,
     }
-    return render(request, 'payments/stk_push_form.html', context)
+    
+   
+    return render(request, 'booking/stk_push_form.html', context)
 
 @login_required 
 def my_bookings_dashboard(request):

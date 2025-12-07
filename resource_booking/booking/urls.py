@@ -1,5 +1,3 @@
-# booking/urls.py (No comments)
-
 from django.urls import path
 from . import views
 
@@ -7,6 +5,7 @@ app_name = 'booking'
 
 urlpatterns = [
     path('', views.landing_view, name='landing'),
+    
     path('home/', views.home_view, name='home'),
     path('register/', views.register_view, name='register'),
     
@@ -17,9 +16,10 @@ urlpatterns = [
 
     path('new/', views.booking_create_view, name='new_booking'),
     
-    # Ensure this is correct: path('payment/initiate/<int:pk>/', views.initiate_stk_push_view, name='initiate_payment'),
+    
     path('payment/initiate/<int:pk>/', views.initiate_stk_push_view, name='initiate_payment'),
 
+    
     path('success/<int:pk>/', views.booking_success_view, name='booking_success'), 
 
     path('my_bookings_dashboard/', views.my_bookings_dashboard, name='my_bookings_dashboard'),
@@ -28,7 +28,5 @@ urlpatterns = [
 
     path('requests/pending/', views.admin_pending_requests, name='admin_pending_dashboard'),
     path('requests/<int:pk>/update/', views.modify_booking, name='admin_booking_update'), 
-
-    # # We will assume this is correct for now:
-    # path('logged-out/', views.logged_out_view, name='logged_out_page'), 
+    
 ]

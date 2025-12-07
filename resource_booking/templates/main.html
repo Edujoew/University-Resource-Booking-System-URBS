@@ -48,7 +48,14 @@
                 {% endif %}
             </ul>
             
-            <ul class="navbar-nav ms-auto">
+            <form class="d-flex me-4" method="get" action="{% url 'booking:resource_list' %}">
+                <input class="form-control form-control-sm me-2" type="search" placeholder="Search resources..." aria-label="Search" name="q" value="{{ request.GET.q|default:'' }}">
+                <button class="btn btn-outline-light btn-sm" type="submit" title="Search">
+                    <i class="fas fa-search"></i>
+                </button>
+            </form>
+
+            <ul class="navbar-nav">
                 
                 {% if user.is_staff or user.is_superuser %}
                 <li class="nav-item dropdown me-3">

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
+from django.db.models import Sum, Q
 
 
 User = get_user_model() 
@@ -38,7 +39,7 @@ class Resource(models.Model):
         null=True, 
     )
     
-    quantity_available = models.PositiveIntegerField(
+    quantity = models.PositiveIntegerField(
         default=1, 
     )
     cost = models.DecimalField(
@@ -57,6 +58,23 @@ class Resource(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.get_type_display()})" 
+
+    def get_currently_booked_quantity(self, start_time, end_time, exclude_booking_pk=None):
+        
+        conflicts = self.resource_bookings.filter(
+            Q(status=BookingRequest.STATUS_APPROVED) | Q(status=BookingRequest.STATUS_PENDING),
+            start_time__lt=end_time,
+            end_time__gt=start_time
+        )
+        
+        if exclude_booking_pk:
+            conflicts = conflicts.exclude(pk=exclude_booking_pk)
+            
+        return conflicts.count()
+
+    def get_available_quantity_at_time(self, start_time, end_time):
+        booked_count = self.get_currently_booked_quantity(start_time, end_time)
+        return self.quantity - booked_count
 
 class BookingRequest(models.Model):
     

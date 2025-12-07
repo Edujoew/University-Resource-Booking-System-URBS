@@ -135,9 +135,11 @@ class BookingRequestForm(forms.ModelForm):
         if self.instance and self.instance.pk:
             conflicting_bookings = conflicting_bookings.exclude(pk=self.instance.pk)
 
-        # New quantitative availability check
+        
         booked_quantity = conflicting_bookings.count()
-        available_quantity = resource.quantity_available if resource else 0
+        
+        # CHANGED resource.quantity_available TO resource.quantity
+        available_quantity = resource.quantity if resource else 0
 
         if booked_quantity >= available_quantity:
             
@@ -152,13 +154,15 @@ class BookingRequestForm(forms.ModelForm):
 class ResourceCreationForm(forms.ModelForm):
     class Meta:
         model = Resource
-        fields = ['name', 'type', 'description', 'image_url', 'cost', 'quantity_available', 'is_available']
+        # CHANGED 'quantity_available' TO 'quantity'
+        fields = ['name', 'type', 'description', 'image_url', 'cost', 'quantity', 'is_available']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique Resource Name'}),
             'type': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Detailed description and use case'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Paste Image URL (optional)'}),
-            'quantity_available': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
+            # CHANGED 'quantity_available' TO 'quantity'
+            'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
             'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }

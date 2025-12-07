@@ -63,7 +63,7 @@
                     <div class="row g-2 mb-3 border-top pt-2">
                         <div class="col-6">
                             <span class="d-block text-muted small"><i class="fas fa-cubes me-1"></i> Total Available</span>
-                            <span class="fw-bold text-info fs-5">{{ resource.quantity_available }}</span>
+                            <span class="fw-bold text-info fs-5">{{ resource.quantity }}</span>
                         </div>
                         <div class="col-6 text-end">
                             <span class="d-block text-muted small"><i class="fas fa-tag me-1"></i> Cost per Hour</span>
@@ -74,8 +74,21 @@
                             {% endif %}
                         </div>
                     </div>
-
+                    
                     <div class="mt-auto pt-2">
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            {% if resource.quantity > 0 %}
+                                <span class="badge bg-success py-2 px-3 fs-6 w-100">
+                                    <i class="fas fa-check-circle me-1"></i> {{ resource.quantity }} Unit(s) In Stock
+                                </span>
+                            {% else %}
+                                <span class="badge bg-danger py-2 px-3 fs-6 w-100">
+                                    <i class="fas fa-times-circle me-1"></i> Out of Stock
+                                </span>
+                            {% endif %}
+                        </div>
+
                         {% if request.user.is_staff or request.user.is_superuser %}
                         <div class="d-flex justify-content-between mb-2">
                             <a href="{% url 'booking:resource_update' pk=resource.pk %}" class="btn btn-sm btn-warning me-2 flex-fill" title="Edit Resource Details">
@@ -87,9 +100,15 @@
                         </div>
                         {% endif %}
 
-                        <a href="{% url 'booking:new_booking' %}?resource={{ resource.pk }}" class="btn btn-primary w-100 shadow-sm">
-                            <i class="fas fa-calendar-check me-1"></i> Book Now
-                        </a>
+                        {% if resource.quantity > 0 %}
+                            <a href="{% url 'booking:new_booking' %}?resource={{ resource.pk }}" class="btn btn-primary w-100 shadow-sm">
+                                <i class="fas fa-calendar-check me-1"></i> Book Now
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary w-100 shadow-sm" disabled>
+                                <i class="fas fa-calendar-times me-1"></i> Unavailable
+                            </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>

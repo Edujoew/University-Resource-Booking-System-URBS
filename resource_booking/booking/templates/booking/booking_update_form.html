@@ -16,18 +16,18 @@
         </h1>
         
         <p class="lead text-muted mb-4">
-            Your booking request (ID: **{{ booking.pk }}**) for **{{ booking.resource.name }}** has been processed.
+            Your booking request (ID: {{ booking.pk }}) for {{ booking.resource.name }} has been processed.
         </p>
 
         {% if booking_status == 'PENDING' %}
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle me-2"></i> 
-            This resource requires **payment/admin approval**. Your booking is currently **pending review**. You will be notified of the status change.
+            This resource requires payment/admin approval. Your booking is currently pending review. You will be notified of the status change.
         </div>
         {% else %}
         <div class="alert alert-success">
             <i class="fas fa-calendar-check me-2"></i> 
-            Your booking is **APPROVED** for {{ booking.start_time|date:"D, d M" }} from {{ booking.start_time|time:"H:i" }} to {{ booking.end_time|time:"H:i" }}.
+            Your booking is APPROVED for {{ booking.start_time|date:"D, d M" }} from {{ booking.start_time|time:"H:i" }} to {{ booking.end_time|time:"H:i" }}.
         </div>
         {% endif %}
         

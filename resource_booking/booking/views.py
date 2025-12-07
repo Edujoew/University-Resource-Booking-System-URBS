@@ -7,7 +7,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 import json
-from decimal import Decimal 
+from decimal import Decimal
+from django.db.models import Q
 from .models import BookingRequest, Resource
 from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
 from django.http import HttpResponse
@@ -92,11 +93,11 @@ def booking_create_view(request):
         initial_data = {}
         resource_pk = request.GET.get('resource')
         if resource_pk:
-             try:
-                 resource = Resource.objects.get(pk=resource_pk)
-                 initial_data['resource'] = resource
-             except Resource.DoesNotExist:
-                 pass
+              try:
+                  resource = Resource.objects.get(pk=resource_pk)
+                  initial_data['resource'] = resource
+              except Resource.DoesNotExist:
+                  pass
         
         form = BookingRequestForm(initial=initial_data)
 
@@ -126,10 +127,10 @@ def initiate_stk_push_view(request, pk):
         duration = booking.end_time - booking.start_time
         duration_in_hours_float = duration.total_seconds() / 3600
         
-       
+        
         duration_in_hours_decimal = Decimal(str(duration_in_hours_float))
         
-       
+        
         total_cost = round(booking.resource.cost * duration_in_hours_decimal, 2)
     else:
         total_cost = booking.resource.cost
@@ -141,7 +142,7 @@ def initiate_stk_push_view(request, pk):
             
             amount = int(float(request.POST.get('amount')))
             if amount <= 0:
-                 raise ValueError("Amount must be positive.")
+                  raise ValueError("Amount must be positive.")
         except (ValueError, TypeError):
             messages.error(request, "Invalid amount provided for M-Pesa.")
             return redirect('booking:initiate_payment', pk=pk)
@@ -166,7 +167,7 @@ def initiate_stk_push_view(request, pk):
         'cost': total_cost,
     }
     
-   
+    
     return render(request, 'booking/stk_push_form.html', context)
 
 @login_required 
@@ -224,7 +225,7 @@ def modify_booking(request, pk):
                 updated_booking.save()
                 messages.success(request, "Booking time/date successfully updated and reset to PENDING status for review.")
                 return redirect('booking:my_bookings_dashboard') 
-            
+                
             elif is_admin:
                 
                 form.save()
@@ -270,6 +271,14 @@ def cancel_booking(request, pk):
 
 def resource_list(request):
     resources = Resource.objects.filter(is_available=True).order_by('name')
+    
+    query = request.GET.get('q')
+    if query:
+        resources = resources.filter(
+            Q(name__icontains=query) | 
+            Q(description__icontains=query)
+        ).distinct()
+
     context = {
         'resources': resources
     }

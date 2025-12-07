@@ -116,4 +116,49 @@ Filtering:`get_queryset` filters by current user: `BookingRequest.objects.filter
  Visuals: Uses color-coded Bootstrap badges (e.g., `bg-warning` for PENDING) for status.
 
  ![alt text](<booking dashboard.png>)
- 
+
+ ## Login page
+![alt text](<login pagee update.png>)
+
+## Registartion page
+![alt text](<register page.png>)
+
+## admin nav bar
+![alt text](<admin navbar.png>)
+
+## normal user navbar
+![alt text](<normal nav.png>)
+
+## homepage
+![alt text](homepage.png)
+
+
+
+## Booking dashboard
+![alt text](<booking dashboar.png>)
+
+## admin resouce page
+![alt text](<resource page.png>)
+able to update add and delete
+
+## normal user resource page
+![alt text](<norm resource.png>)
+
+
+## Add new resource
+![alt text](<new resource.png>)
+
+## update page
+![alt text](<update page.png>)
+
+## booking page
+![alt text](<book page.png>)
+
+## pending request for admins
+![alt text](<pending requests.png>)
+
+## delete page
+![alt text](<delete page.png>)
+
+
+

@@ -7,7 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 import json
-from decimal import Decimal # <--- 1. ADDED IMPORT FOR DECIMAL
+from decimal import Decimal 
 from .models import BookingRequest, Resource
 from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
 from django.http import HttpResponse
@@ -126,10 +126,10 @@ def initiate_stk_push_view(request, pk):
         duration = booking.end_time - booking.start_time
         duration_in_hours_float = duration.total_seconds() / 3600
         
-        # 2. FIX: Convert float to Decimal before multiplication
+       
         duration_in_hours_decimal = Decimal(str(duration_in_hours_float))
         
-        # Perform multiplication: Decimal * Decimal
+       
         total_cost = round(booking.resource.cost * duration_in_hours_decimal, 2)
     else:
         total_cost = booking.resource.cost
@@ -138,8 +138,7 @@ def initiate_stk_push_view(request, pk):
         
         phone_number = request.POST.get('phoneNumber')
         try:
-            # Note: M-Pesa often requires a minimum amount of KES 1. 
-            # We cast to float first to handle decimal input, then to int for M-Pesa API.
+            
             amount = int(float(request.POST.get('amount')))
             if amount <= 0:
                  raise ValueError("Amount must be positive.")

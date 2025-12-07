@@ -120,7 +120,7 @@
                 <h4 class="alert-heading">No Available Resources</h4>
                 <p>No resources are currently marked as available for booking or match your criteria.</p>
                 {% if request.user.is_staff or request.user.is_superuser %}
-                <a href="{% url 'booking:create_resource' %}" class="btn btn-info mt-2">Add your first resource!</a>
+                <a href="{% url 'booking:create_resource' %}" class="btn btn-info mt-2">Add your first resource Here!</a>
                 {% endif %}
             </div>
         </div>

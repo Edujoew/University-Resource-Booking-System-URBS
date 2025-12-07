@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'booking',
-    'payments',         # <--- M-Pesa transaction management
     'django_daraja',    # <--- 1. Required for Mpesa integration
     'crispy_forms',     # <--- 2. Required for crispy forms functionality
     'crispy_bootstrap5', # <--- 3. Required for the bootstrap 5 theme

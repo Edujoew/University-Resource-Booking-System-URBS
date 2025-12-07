@@ -11,5 +11,5 @@ urlpatterns = [
     path('', include('booking.urls')),
     
     
-    path('payments/', include('payments.urls')), 
+   
 ]

@@ -44,8 +44,8 @@
                             <h2 class="mb-3">Join the Resource Booking System</h2>
                             <p class="lead">Create your account to gain full access to all university spaces and equipment reservations.</p>
                             <img src="https://images.unsplash.com/photo-1541339907198-e0875661f970?q=80&w=2940&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" 
-                                 alt="University Campus View" 
-                                 class="img-fluid rounded shadow-sm mt-4 opacity-75">
+                                alt="University Campus View" 
+                                class="img-fluid rounded shadow-sm mt-4 opacity-75">
                         </div>
                     </div>
 
@@ -60,7 +60,14 @@
                             <form method="post">
                                 {% csrf_token %}
                                 
-                                {{ form|crispy }}
+                                {{ form.username|as_crispy_field }}
+                                {{ form.email|as_crispy_field }}
+                                {{ form.password2|as_crispy_field }}
+                                {{ form.password1|as_crispy_field }}
+
+                                <div class="mb-3">
+                                    {{ form.is_staff|as_crispy_field }}
+                                </div>
                                 
                                 <div class="form-check mt-3">
                                     <input class="form-check-input" type="checkbox" id="showPassword" onchange="togglePasswordVisibility()">

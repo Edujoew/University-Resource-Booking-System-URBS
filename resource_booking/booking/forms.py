@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.core.exceptions import ValidationError
 from django.db.models import Sum
-from .models import BookingRequest, Resource
+from .models import BookingRequest, Resource, UserMessage
 
 class BookingRequestForm(forms.ModelForm):
     
@@ -138,7 +138,6 @@ class BookingRequestForm(forms.ModelForm):
         
         booked_quantity = conflicting_bookings.count()
         
-        # CHANGED resource.quantity_available TO resource.quantity
         available_quantity = resource.quantity if resource else 0
 
         if booked_quantity >= available_quantity:
@@ -154,14 +153,15 @@ class BookingRequestForm(forms.ModelForm):
 class ResourceCreationForm(forms.ModelForm):
     class Meta:
         model = Resource
-        # CHANGED 'quantity_available' TO 'quantity'
         fields = ['name', 'type', 'description', 'image_url', 'cost', 'quantity', 'is_available']
+        labels = {
+            'quantity': 'Quantity',
+        }
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Unique Resource Name'}),
             'type': forms.Select(attrs={'class': 'form-select'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Detailed description and use case'}),
             'image_url': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Paste Image URL (optional)'}),
-            # CHANGED 'quantity_available' TO 'quantity'
             'quantity': forms.NumberInput(attrs={'class': 'form-control', 'min': 1}),
             'cost': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01', 'min': 0}),
             'is_available': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -173,9 +173,14 @@ class UserRegistrationForm(UserCreationForm):
         required=True,
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'})
     )
+    is_staff = forms.BooleanField(
+        required=False, 
+        label='Register as Staff?',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
     
     class Meta(UserCreationForm.Meta):
-        fields = UserCreationForm.Meta.fields + ('email',)
+        fields = UserCreationForm.Meta.fields + ('email', 'is_staff',)
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
@@ -186,6 +191,22 @@ class UserRegistrationForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         user.email = self.cleaned_data['email']
+        user.is_staff = self.cleaned_data.get('is_staff', False) 
         if commit:
             user.save()
         return user
+
+
+class UserMessageForm(forms.ModelForm):
+    
+    
+    class Meta:
+        model = UserMessage
+        
+        
+        fields = ['subject', 'body']
+        
+        widgets = {
+            'subject': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Message Subject'}),
+            'body': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Enter your message content here...'}),
+        }

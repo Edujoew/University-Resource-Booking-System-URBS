@@ -29,4 +29,9 @@ urlpatterns = [
     path('requests/pending/', views.admin_pending_requests, name='admin_pending_dashboard'),
     path('requests/<int:pk>/update/', views.modify_booking, name='admin_booking_update'), 
     
+    
+    path('booking/admin/users/', views.admin_user_list_view, name='admin_user_list'),
+
+    path('booking/messages/inbox/', views.message_inbox_view, name='message_inbox'),
+    path('booking/admin/send-message/', views.admin_send_message_view, name='admin_send_message'),
 ]

@@ -1,0 +1,50 @@
+{% extends 'main.html' %}
+{% load crispy_forms_tags %}
+
+{% block title %}Broadcast Message{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    <header class="mb-5 text-center">
+        <h1 class="display-4 fw-bolder text-primary">
+            <i class="fas fa-bullhorn me-2"></i> System Broadcast Message
+        </h1>
+        <p class="lead text-muted">Send an announcement or important notice to all registered users.</p>
+    </header>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            
+            <div class="alert alert-danger d-flex align-items-center mb-4 shadow-sm" role="alert">
+                <i class="fas fa-exclamation-triangle me-3 fs-4"></i>
+                <div>
+                    Caution: This message will be sent to all non-staff/non-Admin accounts. Use for important, general announcements only.
+                </div>
+            </div>
+            
+            <div class="card shadow-lg border-primary border-2">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">Compose Broadcast</h5>
+                </div>
+                <div class="card-body p-5">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        {{ form|crispy }}
+                        
+                        <button type="submit" class="btn btn-danger btn-lg w-100 mt-5">
+                            <i class="fas fa-share-square me-2"></i> Send Broadcast to All Users
+                        </button>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <a href="{% url 'booking:admin_user_list' %}" class="text-decoration-none text-secondary">
+                    <i class="fas fa-arrow-left me-1"></i> Back to User List
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -15,11 +15,18 @@ Bootstrap CDN	Why CDN? Using a Content Delivery Network for Bootstrap CSS and JS
 
 {% block content %}...{% endblock  %}	 This is the main content injection point. Every specific page template (home.html, login.html, booking_form.html) must use this block to inject its unique content while keeping the consistent header and footer.
 
+## admin nav bar
+![alt text](<admin navbar.png>)
+
+## normal user navbar
+![alt text](<normal nav.png>)
+
+
 ## Home.html
 
 Contextual Welcome	-Why Conditional? The text content adapts based on the user's authentication status. This personalization provides immediate, relevant directions: encouraging new users to log in, and reminding returning users where to find their existing bookings.
 
-## hompage
+## homepage
 ![alt text](homepage.png)
 
 
@@ -29,6 +36,11 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 
 {% load crispy_forms_tags %}	 Imports the tag needed to format Django forms beautifully using the Crispy Forms library and the Bootstrap 5 template pack.
 {% csrf_token %}	 Mandatory security token. This hidden field prevents Cross-Site Request Forgery (CSRF) attacks, ensuring that the form submission is valid and originated from our application.
+
+## Login page
+![alt text](<login pagee update.png>)
+
+
 ## landing page
 "jumbotron text-center bg-light p-5 rounded shadow-sm">	Purpose: Uses the Bootstrap framework to create a large, prominent block (jumbotron styling) that centers the content, applies a light background (bg-light), adds padding (p-5), and gives it a slightly raised visual effect (rounded shadow-sm)
 ![alt text](<landing page.png>)
@@ -36,26 +48,13 @@ Button Links	Purpose: The links use Django's {% url '...' %} tag, ensuring that 
 ## updated landing page
 ![alt text](<landing pg.png>)
 
-## login page
-![alt text](<login page.png>)
-
-
-## logged_out
-
-Template Path	Why templates/registration/logged_out.html? Similar to login.html, this is the default template path expected by Django's built-in LogoutView after a successful logout action.
-
-## logout button
-![alt text](<logout button.png>)
-
-
-alert alert-info	Purpose: Uses Bootstrap components (alerts) to provide a clear, user-friendly, and styled message confirming the logout action.
 
 ## register.html
 
 {% load crispy_forms_tags %}	Purpose: Ensures that when the custom registration view eventually passes a form object (like a UserCreationForm), we can use the `btn btn-primary	Purpose: Uses the primary brand color for the Register button, defining it as the main call-to-action on this page according to Bootstrap styling conventions.
 
-## registartion page
-![alt text](<registration page.png>)
+## Registartion page
+![alt text](<register page.png>)
 
 
 ## form.py
@@ -84,13 +83,15 @@ is_available = models.BooleanField(default=True)	 A control field allowing admin
 
 __str__ method	 Defines the human-readable representation of a resource object (e.g., "Room 33 (Room/Lecture Hall)"). This is vital for debugging and clarity in the Django Admin interface.
 
-## booking form
-!![alt text](<submit booking.png>)
+## booking page
+![alt text](<book page.png>)
 
 ## MPESA API
-![alt text](<stk push.png>)
+![alt text](<mpesa push.png>)
 
 ## booking confilict validation
+![alt text](<booking sanity.png>)
+
 Basic Sanity	Checks if start_time is less than end_time.	Prevents illogical bookings and potential database errors.
 
 OCCUPIED_STATUSES	Defines ['APPROVED', 'PENDING'] as statuses that block new bookings.	Ensures resources reserved by users (even if pending payment/review) cannot be double-booked.
@@ -115,27 +116,9 @@ Filtering:`get_queryset` filters by current user: `BookingRequest.objects.filter
 
  Visuals: Uses color-coded Bootstrap badges (e.g., `bg-warning` for PENDING) for status.
 
- ![alt text](<booking dashboard.png>)
+## booking dashboard
+ ![alt text](<booking dashboar.png>)
 
- ## Login page
-![alt text](<login pagee update.png>)
-
-## Registartion page
-![alt text](<register page.png>)
-
-## admin nav bar
-![alt text](<admin navbar.png>)
-
-## normal user navbar
-![alt text](<normal nav.png>)
-
-## homepage
-![alt text](homepage.png)
-
-
-
-## Booking dashboard
-![alt text](<booking dashboar.png>)
 
 ## admin resouce page
 ![alt text](<resource page.png>)
@@ -150,9 +133,6 @@ able to update add and delete
 
 ## update page
 ![alt text](<update page.png>)
-
-## booking page
-![alt text](<book page.png>)
 
 ## pending request for admins
 ![alt text](<pending requests.png>)

@@ -9,11 +9,14 @@ from django.utils import timezone
 import json
 from decimal import Decimal
 from django.db.models import Q
-from .models import BookingRequest, Resource
-from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm
+from django.contrib.auth import get_user_model
+from .models import BookingRequest, Resource, UserMessage
+from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm, UserMessageForm
 from django.http import HttpResponse
 from django_daraja.mpesa.core import MpesaClient
 
+
+User = get_user_model() 
 
 
 def index(request):
@@ -37,11 +40,18 @@ def home_view(request):
             status='APPROVED', 
             start_time__gte=timezone.now()
         ).count()
+
+        
+        unread_messages_count = UserMessage.objects.filter(
+            recipient=request.user, 
+            is_read=False
+        ).count()
         
         context.update({
             'total_bookings': total_bookings,
             'pending_bookings': pending_bookings,
             'upcoming_bookings': upcoming_bookings,
+            'unread_messages_count': unread_messages_count, 
         })
     
     return render(request, 'booking/home.html', context)
@@ -56,6 +66,8 @@ def register_view(request):
                 'Account created successfully! Please log in with your credentials.'
             )
             return redirect(reverse_lazy('login'))
+        else:
+            pass
     else:
         form = UserRegistrationForm()
 
@@ -63,6 +75,11 @@ def register_view(request):
         'form': form
     }
     return render(request, 'registration/register.html', context)
+
+
+def login_success_handler(request):
+    messages.success(request, 'Login successful!')
+    return redirect('booking:home')
 
 @login_required
 def booking_create_view(request):
@@ -176,11 +193,18 @@ def my_bookings_dashboard(request):
     all_bookings = BookingRequest.objects.filter(user=request.user).order_by('-start_time')
     pending_bookings = all_bookings.filter(status='PENDING')
     past_bookings = all_bookings.exclude(status='PENDING').order_by('-start_time')
+
+   
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
     
     context = {
         'bookings': all_bookings,
         'pending_bookings': pending_bookings,
         'past_bookings': past_bookings,
+        'unread_messages_count': unread_messages_count, 
     }
     
     return render(request, 'booking/my_bookings_dashboard.html', context)
@@ -192,11 +216,38 @@ def admin_pending_requests(request):
 
     pending_bookings = BookingRequest.objects.filter(status='PENDING').order_by('start_time')
     
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
     context = {
-        'pending_bookings': pending_bookings
+        'pending_bookings': pending_bookings,
+        'unread_messages_count': unread_messages_count, 
     }
 
     return render(request, 'booking/admin_pending_list.html', context)
+
+
+@login_required
+def admin_user_list_view(request):
+    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
+        return HttpResponseForbidden("Access denied. You must be authorized staff or a superuser.")
+
+    users = User.objects.all().order_by('date_joined')
+    
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
+    context = {
+        'users': users,
+        'unread_messages_count': unread_messages_count, 
+    }
+    return render(request, 'booking/admin_user_list.html', context)
 
 
 @login_required
@@ -236,12 +287,19 @@ def modify_booking(request, pk):
             
     else:
         form = BookingRequestForm(instance=booking, is_admin=is_admin, is_owner=is_owner)
+
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
     
     context = {
         'form': form,
         'booking': booking,
         'is_admin': is_admin,
         'is_owner': is_owner,
+        'unread_messages_count': unread_messages_count, 
     }
 
     return render(request, 'booking/booking_update_form.html', context)
@@ -301,8 +359,15 @@ def create_resource_view(request):
     else:
         form = ResourceCreationForm()
 
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
     context = {
-        'form': form
+        'form': form,
+        'unread_messages_count': unread_messages_count, 
     }
     return render(request, 'booking/resource_create_form.html', context)
 
@@ -324,10 +389,17 @@ def resource_update_view(request, pk):
             messages.error(request, "Please correct the errors below.")
     else:
         form = ResourceCreationForm(instance=resource)
-
+        
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+    
     context = {
         'form': form,
         'resource': resource,
+        'unread_messages_count': unread_messages_count, 
     }
     return render(request, 'booking/resource_update_form.html', context)
 
@@ -344,10 +416,92 @@ def resource_delete_view(request, pk):
         messages.success(request, f"Resource '{resource.name}' was successfully deleted.")
         return redirect(reverse_lazy('booking:resource_list'))
 
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
     context = {
-        'resource': resource
+        'resource': resource,
+        'unread_messages_count': unread_messages_count, 
     }
     return render(request, 'booking/resource_confirm_delete.html', context)
 
 def logged_out_view(request):
     return render(request, 'registration/logged_out.html')
+
+
+
+@login_required
+def message_inbox_view(request):
+    """View to display all messages received by the current user."""
+    
+    messages_list = UserMessage.objects.filter(recipient=request.user).order_by('-sent_at')
+    
+    
+    unread_messages = messages_list.filter(is_read=False)
+    
+    unread_messages.update(is_read=True) 
+    
+    
+    unread_messages_count = 0
+    
+    context = {
+        'messages': messages_list,
+        'unread_messages_count': unread_messages_count, 
+    }
+    return render(request, 'booking/message_inbox.html', context)
+
+
+@login_required
+def admin_send_message_view(request):
+    """View for Admin/Staff to send messages to all standard users (Broadcast)."""
+    
+    if not request.user.is_staff and not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied. Only authorized staff can send messages.")
+
+    if request.method == 'POST':
+        
+        form = UserMessageForm(request.POST) 
+        if form.is_valid():
+            subject = form.cleaned_data['subject']
+            body = form.cleaned_data['body']
+            sender = request.user
+            
+            
+            target_users = User.objects.filter(is_staff=False, is_superuser=False)
+
+            messages_to_create = []
+            for recipient in target_users:
+                messages_to_create.append(
+                    UserMessage(
+                        sender=sender,
+                        recipient=recipient,
+                        subject=subject,
+                        body=body,
+                        is_read=False,
+                    )
+                )
+            
+            UserMessage.objects.bulk_create(messages_to_create)
+            
+            messages.success(request, f"Broadcast message successfully sent to {len(messages_to_create)} users.")
+            
+            return redirect('booking:admin_user_list')
+        
+    else:
+        form = UserMessageForm()
+
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
+    context = {
+        'form': form,
+        'unread_messages_count': unread_messages_count,
+        'is_broadcast': True,
+    }
+    return render(request, 'booking/admin_send_message_form.html', context)

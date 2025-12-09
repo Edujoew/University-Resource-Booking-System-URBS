@@ -37,9 +37,11 @@
                 </li>
                 
                 {% if user.is_authenticated %}
+                {% if not user.is_staff and not user.is_superuser %}
                 <li class="nav-item">
                     <a class="nav-link" href="{% url 'booking:my_bookings_dashboard' %}">My Bookings</a>
                 </li>
+                {% endif %}
                 
                 {% if user.is_staff %}
                 <li class="nav-item">
@@ -63,6 +65,9 @@
                         <i class="fas fa-tools me-1"></i> Admin Management
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="adminDropdown">
+                        
+                        {# This line was updated #}
+                        {% if perms.booking.can_create_resource %} 
                         <li>
                             <a class="dropdown-item" href="{% url 'booking:create_resource' %}">
                                 <i class="fas fa-plus-circle text-success me-2"></i> Create New Resource
@@ -74,17 +79,23 @@
                                 <i class="fas fa-edit text-warning me-2"></i> Update/Delete Resources
                             </a>
                         </li>
+                        {% endif %}
+                        
+                        {# This line was updated #}
+                        {% if perms.booking.can_review_booking %} 
                         <li>
                             <a class="dropdown-item" href="{% url 'booking:admin_pending_dashboard' %}">
                                 <i class="fas fa-clock text-info me-2"></i> Pending Bookings
                             </a>
                         </li>
+                        {% endif %}
                         
                         <li>
                             <a class="dropdown-item" href="{% url 'booking:admin_user_list' %}">
                                 <i class="fas fa-users text-primary me-2"></i> View Registered Users
                             </a>
                         </li>
+                        
                         
                         
                         <li><hr class="dropdown-divider"></li>
@@ -110,12 +121,16 @@
                         {% endif %}
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        
+                        {% if not user.is_staff and not user.is_superuser %}
                         <li>
                             <a class="dropdown-item" href="{% url 'booking:my_bookings_dashboard' %}">
                                 <i class="fas fa-list me-2"></i> My Bookings
                             </a>
                         </li>
                         
+                        <li><hr class="dropdown-divider"></li>
+                        {% endif %}
                         
                         <li>
                             <a class="dropdown-item" href="{% url 'booking:message_inbox' %}">
@@ -127,6 +142,7 @@
                                 {% endif %}
                             </a>
                         </li>
+                        
                         
                         
                         <li><hr class="dropdown-divider"></li>
@@ -191,7 +207,7 @@
                     setTimeout(() => {
                         const bootstrapAlert = bootstrap.Alert.getInstance(alert) || new bootstrap.Alert(alert);
                         bootstrapAlert.dispose();
-                    }, 3000); // 3 seconds
+                    }, 3000); 
                 }
             });
         });

@@ -126,11 +126,25 @@
 
             </div>
             
-            {% if user.is_staff or user.is_superuser %}
+            {% if user.is_superuser %}
             <div class="alert alert-info mt-4 shadow-sm" role="alert">
-                <i class="fas fa-tools me-2"></i> You have  ADMIN PRIVILEDGES Access all resource and booking management tools via the ADMIN MANAGEMENTG TOOLS in the navigation bar.
+            <i class="fas fa-wrench me-2"></i> You have ADMIN privileges. Access all resource, user, and booking management tools via the ADMIN MANAGEMENT menu.
             </div>
-            {% endif %}
+
+            {% elif user.is_staff and perms.booking.can_review_booking %}
+            <div class="alert alert-warning mt-4 shadow-sm" role="alert">
+            <i class="fas fa-user-shield me-2"></i> You have Staff Reviewer privileges. You are authorized to review and approve/reject pending bookings via the ADMIN MANAGEMENT menu.
+            </div>
+
+             {% elif user.is_staff %}
+            <div class="alert alert-secondary mt-4 shadow-sm" role="alert">
+            <i class="fas fa-user-tag me-2"></i> You are a STAFF MEMBER. Check the ADMIN MANAGEMENT menu for your assigned tools.
+            </div>
+             {% endif %}
+            
+            
+            
+        
             
         </div>
         

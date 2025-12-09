@@ -24,6 +24,11 @@
     font-size: 0.9rem;
     padding: 0.5em 0.8em;
 }
+
+.btn-group-sm {
+    display: flex;
+    gap: 0.5rem; 
+}
 </style>
 
 <div class="container py-5">
@@ -44,6 +49,7 @@
     
 
     {% if pending_bookings %}
+       
         <div class="row g-4">
             {% for booking in pending_bookings %}
             <div class="col-12">
@@ -52,7 +58,7 @@
                         <div class="d-flex w-100 justify-content-between align-items-start">
                             <h5 class="mb-1 text-primary fw-bold fs-4">
                                 <i class="bi bi-tag-fill me-2 text-warning"></i> {{ booking.resource.name }} 
-                                <small class="text-muted fw-normal fs-6">({{ booking.resource.resource_type }})</small>
+                                <small class="text-muted fw-normal fs-6">({{ booking.resource.get_type_display }})</small>
                             </h5>
                             <span class="badge badge-pending fw-bold rounded-pill">{{ booking.status }}</span>
                         </div>
@@ -60,6 +66,14 @@
                         <p class="mb-3 mt-1">
                             Requested by: <strong>{{ booking.user.username }}</strong> ({{ booking.user.email }})
                         </p>
+                        
+                        {% if booking.purpose %}
+                            <div class="bg-light p-3 rounded mb-3 border-start border-warning border-4">
+                                <small class="text-muted d-block">Purpose:</small>
+                                <em>{{ booking.purpose|truncatechars:100 }}</em>
+                            </div>
+                        {% endif %}
+
 
                         <div class="row border-top pt-3 align-items-center">
                             
@@ -74,10 +88,10 @@
                             </div>
                             
                             <div class="col-6 col-md-3 mb-2">
-                                <small class="text-muted d-block">Total Cost (KSH)</small>
+                                <small class="text-muted d-block">Cost Status</small>
                                 <span class="fw-bold text-dark">
                                     {% if booking.resource.cost > 0 %}
-                                        {{ booking.resource.cost|floatformat:2 }}
+                                        KSH {{ booking.resource.cost|floatformat:2 }} / hour
                                     {% else %}
                                         Free
                                     {% endif %}
@@ -85,9 +99,31 @@
                             </div>
                             
                             <div class="col-6 col-md-3 d-flex justify-content-end align-items-center mt-2 mt-md-0">
-                                <a href="{% url 'booking:admin_booking_update' booking.pk %}" class="btn btn-warning w-100 fw-bold">
-                                    <i class="bi bi-pencil-square me-1"></i> Review Action
-                                </a>
+                                {% if perms.booking.can_review_booking %}
+                                <div class="btn-group-sm w-100">
+                                    <form method="POST" action="{% url 'booking:admin_review_booking' pk=booking.pk %}" class="d-inline w-50">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="approve">
+                                        <button type="submit" class="btn btn-sm btn-success w-100" 
+                                                onclick="return confirm('Confirm APPROVE booking {{ booking.pk }}?');" title="Approve Booking">
+                                            <i class="bi bi-check-lg me-1"></i> Approve
+                                        </button>
+                                    </form>
+
+                                    <form method="POST" action="{% url 'booking:admin_review_booking' pk=booking.pk %}" class="d-inline w-50">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="reject">
+                                        <button type="submit" class="btn btn-sm btn-danger w-100" 
+                                                onclick="return confirm('Confirm REJECT booking {{ booking.pk }}?');" title="Reject Booking">
+                                            <i class="bi bi-x-lg me-1"></i> Reject
+                                        </button>
+                                    </form>
+                                </div>
+                                {% else %}
+                                    <a href="{% url 'booking:modify_booking' booking.pk %}" class="btn btn-warning w-100 fw-bold">
+                                        <i class="bi bi-eye me-1"></i> View Details
+                                    </a>
+                                {% endif %}
                             </div>
                             
                         </div>

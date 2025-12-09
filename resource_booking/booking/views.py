@@ -1,9 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponseForbidden
+from django.http import JsonResponse, HttpResponseForbidden, HttpResponse
 from django.views.decorators.http import require_http_methods
 from django.views.decorators.csrf import csrf_exempt
-from django.urls import reverse_lazy, reverse
-from django.contrib.auth.decorators import login_required
+from django.urls import reverse_lazy
+from django.contrib.auth.decorators import login_required, permission_required
 from django.contrib import messages
 from django.utils import timezone
 import json
@@ -12,7 +12,6 @@ from django.db.models import Q
 from django.contrib.auth import get_user_model
 from .models import BookingRequest, Resource, UserMessage
 from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationForm, UserMessageForm
-from django.http import HttpResponse
 from django_daraja.mpesa.core import MpesaClient
 
 
@@ -194,7 +193,7 @@ def my_bookings_dashboard(request):
     pending_bookings = all_bookings.filter(status='PENDING')
     past_bookings = all_bookings.exclude(status='PENDING').order_by('-start_time')
 
-   
+    
     unread_messages_count = UserMessage.objects.filter(
         recipient=request.user, 
         is_read=False
@@ -210,9 +209,9 @@ def my_bookings_dashboard(request):
     return render(request, 'booking/my_bookings_dashboard.html', context)
 
 @login_required
+@permission_required('booking.can_review_booking', raise_exception=True)
 def admin_pending_requests(request):
-    if not request.user.is_authenticated or not (request.user.is_staff or request.user.is_superuser):
-        return HttpResponseForbidden("Access denied. You must be staff or a superuser.")
+    
 
     pending_bookings = BookingRequest.objects.filter(status='PENDING').order_by('start_time')
     
@@ -225,9 +224,58 @@ def admin_pending_requests(request):
     context = {
         'pending_bookings': pending_bookings,
         'unread_messages_count': unread_messages_count, 
+        
+        'can_review': request.user.has_perm('booking.can_review_booking'),
     }
 
     return render(request, 'booking/admin_pending_list.html', context)
+
+
+@login_required
+@permission_required('booking.can_review_booking', raise_exception=True) 
+@require_http_methods(["POST"])
+def admin_review_booking(request, pk):
+    booking = get_object_or_404(BookingRequest, pk=pk)
+    action = request.POST.get('action') 
+    
+    
+    if booking.status != 'PENDING':
+        messages.error(request, f"Booking ID {pk} is already {booking.status}.")
+        return redirect('booking:admin_pending_dashboard')
+
+    
+    subject = ""
+    body = ""
+
+    if action == 'approve':
+        booking.status = 'APPROVED'
+        subject = f"✅ Booking Approved: {booking.resource.name}"
+        body = f"Your booking for {booking.resource.name} from {booking.start_time.strftime('%Y-%m-%d %H:%M')} to {booking.end_time.strftime('%Y-%m-%d %H:%M')} has been APPROVED."
+        messages.success(request, f"Booking ID {pk} approved.")
+
+    elif action == 'reject':
+        booking.status = 'REJECTED'
+        subject = f"❌ Booking Rejected: {booking.resource.name}"
+        body = f"Your booking for {booking.resource.name} from {booking.start_time.strftime('%Y-%m-%d %H:%M')} has been REJECTED by the administrator."
+        messages.warning(request, f"Booking ID {pk} rejected.")
+
+    else:
+        messages.error(request, "Invalid action specified.")
+        return redirect('booking:admin_pending_dashboard')
+
+    booking.save()
+    
+    
+    UserMessage.objects.create(
+        sender=request.user, 
+        recipient=booking.user, 
+        subject=subject,
+        body=body,
+        is_read=False,
+    )
+    
+
+    return redirect('booking:admin_pending_dashboard')
 
 
 @login_required
@@ -281,7 +329,19 @@ def modify_booking(request, pk):
                 
                 form.save()
                 messages.success(request, f"Booking ID {pk} status successfully updated to {booking.status}.")
-                return redirect('booking:admin_pending_requests') 
+                
+                if booking.status in ['APPROVED', 'REJECTED']:
+                    subject = f"Booking Update: {booking.resource.name}"
+                    body = f"The administrator has manually updated your booking for **{booking.resource.name}** to **{booking.status}**."
+                    UserMessage.objects.create(
+                        sender=request.user, 
+                        recipient=booking.user,
+                        subject=subject,
+                        body=body,
+                        is_read=False,
+                    )
+                
+                return redirect('booking:admin_pending_dashboard')
         else:
             messages.error(request, "There was an error with your submission. Please check the form. Errors shown below.")
             
@@ -344,9 +404,9 @@ def resource_list(request):
 
 
 @login_required
+@permission_required('booking.can_create_resource', raise_exception=True)
 def create_resource_view(request):
-    if not request.user.is_staff and not request.user.is_superuser:
-        return HttpResponseForbidden("Access denied. Only authorized staff can create resources.")
+    
 
     if request.method == 'POST':
         form = ResourceCreationForm(request.POST)
@@ -373,9 +433,9 @@ def create_resource_view(request):
 
 
 @login_required
+@permission_required('booking.can_create_resource', raise_exception=True) 
 def resource_update_view(request, pk):
-    if not request.user.is_staff and not request.user.is_superuser:
-        return HttpResponseForbidden("Access denied. Only authorized staff can modify resources.")
+    
 
     resource = get_object_or_404(Resource, pk=pk)
 
@@ -405,9 +465,9 @@ def resource_update_view(request, pk):
 
 
 @login_required
+@permission_required('booking.can_delete_resource', raise_exception=True)
 def resource_delete_view(request, pk):
-    if not request.user.is_staff and not request.user.is_superuser:
-        return HttpResponseForbidden("Access denied. Only authorized staff can delete resources.")
+    
 
     resource = get_object_or_404(Resource, pk=pk)
 
@@ -435,7 +495,6 @@ def logged_out_view(request):
 
 @login_required
 def message_inbox_view(request):
-    """View to display all messages received by the current user."""
     
     messages_list = UserMessage.objects.filter(recipient=request.user).order_by('-sent_at')
     
@@ -456,7 +515,7 @@ def message_inbox_view(request):
 
 @login_required
 def admin_send_message_view(request):
-    """View for Admin/Staff to send messages to all standard users (Broadcast)."""
+    
     
     if not request.user.is_staff and not request.user.is_superuser:
         return HttpResponseForbidden("Access denied. Only authorized staff can send messages.")
@@ -470,7 +529,7 @@ def admin_send_message_view(request):
             sender = request.user
             
             
-            target_users = User.objects.filter(is_staff=False, is_superuser=False)
+            target_users = User.objects.filter(is_active=True).exclude(pk=sender.pk)
 
             messages_to_create = []
             for recipient in target_users:

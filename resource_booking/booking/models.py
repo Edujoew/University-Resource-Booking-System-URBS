@@ -55,6 +55,12 @@ class Resource(models.Model):
         ordering = ['name']
         verbose_name = "Bookable Resource"
         verbose_name_plural = "Bookable Resources"
+        # 1. ADDED: Granular permissions for Resource management
+        permissions = [
+            ("can_create_resource", "Can create new resources"),
+            ("can_delete_resource", "Can delete existing resources"),
+        ]
+
 
     def __str__(self):
         return f"{self.name} ({self.get_type_display()})" 
@@ -141,6 +147,10 @@ class BookingRequest(models.Model):
         ordering = ['start_time']
         verbose_name = "Booking Request"
         verbose_name_plural = "Booking Requests"
+        # 2. ADDED: Granular permission for booking review
+        permissions = [
+            ("can_review_booking", "Can approve or reject pending bookings"),
+        ]
 
     def __str__(self):
         return f"{self.resource.name} booked by {self.user.username} ({self.status})"

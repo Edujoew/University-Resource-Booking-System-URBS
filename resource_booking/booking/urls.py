@@ -34,4 +34,6 @@ urlpatterns = [
 
     path('booking/messages/inbox/', views.message_inbox_view, name='message_inbox'),
     path('booking/admin/send-message/', views.admin_send_message_view, name='admin_send_message'),
+
+    path('/admin/pending/review/<int:pk>/', views.admin_review_booking, name='admin_review_booking'),
 ]

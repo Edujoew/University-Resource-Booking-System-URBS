@@ -28,6 +28,8 @@
                         <span class="badge bg-danger">{{ booking.status }}</span>
                     {% elif booking.status == 'CANCELLED' %}
                         <span class="badge bg-secondary">{{ booking.status }}</span>
+                    {% elif booking.status == 'COMPLETED' %}
+                        <span class="badge bg-info">{{ booking.status }}</span>
                     {% else %}
                         <span class="badge bg-info">{{ booking.status }}</span>
                     {% endif %}
@@ -38,12 +40,16 @@
                     </a>
                     
                     {% if booking.status == 'PENDING' or booking.status == 'APPROVED' %}
-                    <form method="POST" action="{% url 'booking:cancel_booking' booking.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking? This cannot be undone.');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                        <form method="POST" action="{% url 'booking:cancel_booking' booking.pk %}" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking? This cannot be undone.');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                Cancel
+                            </button>
+                        </form>
+                    {% else %}
+                        <button class="btn btn-sm btn-outline-secondary w-100" disabled>
                             Cancel
                         </button>
-                    </form>
                     {% endif %}
                 </td>
             </tr>

@@ -31,6 +31,8 @@ urlpatterns = [
     
     
     path('booking/admin/users/', views.admin_user_list_view, name='admin_user_list'),
+    path('booking/admin/users/<int:pk>/delete/', views.admin_delete_user_view, name='admin_delete_user'),
+    path('booking/admin/users/create-staff/', views.admin_create_staff_view, name='admin_create_staff'),
 
     path('booking/messages/inbox/', views.message_inbox_view, name='message_inbox'),
     path('booking/admin/send-message/', views.admin_send_message_view, name='admin_send_message'),

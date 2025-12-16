@@ -189,6 +189,15 @@ def initiate_stk_push_view(request, pk):
 @login_required 
 def my_bookings_dashboard(request):
     
+    now = timezone.now()
+    
+    BookingRequest.objects.filter(
+        user=request.user,
+        status='APPROVED',
+        end_time__lt=now 
+    ).update(status='COMPLETED')
+    
+    
     all_bookings = BookingRequest.objects.filter(user=request.user).order_by('-start_time')
     pending_bookings = all_bookings.filter(status='PENDING')
     past_bookings = all_bookings.exclude(status='PENDING').order_by('-start_time')
@@ -304,7 +313,6 @@ def admin_create_staff_view(request):
         messages.error(request, "Access denied. Only superusers can create staff accounts.")
         return redirect('booking:admin_user_list')
     
-    # Placeholder: Replace this with your actual form/staff creation logic
     messages.info(request, "Staff creation functionality is pending implementation or form import. Redirecting to user list.")
     return redirect('booking:admin_user_list')
 
@@ -416,11 +424,18 @@ def cancel_booking(request, pk):
     
     
     if booking.status in ['APPROVED', 'PENDING']:
+        
+        if booking.end_time < timezone.now():
+            messages.error(request, f"Booking ID {pk} cannot be cancelled because the booking time has already passed.")
+            return redirect('booking:my_bookings_dashboard')
+
         booking.status = 'CANCELLED'
         booking.save()
         messages.success(request, f"Booking ID {pk} for {booking.resource.name} has been successfully cancelled.")
     elif booking.status == 'CANCELLED':
         messages.info(request, "This booking is already cancelled.")
+    elif booking.status == 'COMPLETED':
+        messages.error(request, f"Booking ID {pk} cannot be cancelled because it is already COMPLETED.")
     else:
         messages.error(request, f"Booking ID {pk} cannot be cancelled in {booking.status} status.")
 

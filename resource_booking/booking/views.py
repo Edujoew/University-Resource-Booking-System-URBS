@@ -15,12 +15,12 @@ from .forms import BookingRequestForm, UserRegistrationForm, ResourceCreationFor
 from django_daraja.mpesa.core import MpesaClient
 
 
-User = get_user_model() 
+User = get_user_model()
 
 
 def index(request):
     return HttpResponse("")
-    
+
 
 def landing_view(request):
     return render(request, 'booking/landing.html')
@@ -158,7 +158,7 @@ def initiate_stk_push_view(request, pk):
             
             amount = int(float(request.POST.get('amount')))
             if amount <= 0:
-                  raise ValueError("Amount must be positive.")
+                raise ValueError("Amount must be positive.")
         except (ValueError, TypeError):
             messages.error(request, "Invalid amount provided for M-Pesa.")
             return redirect('booking:initiate_payment', pk=pk)
@@ -296,6 +296,46 @@ def admin_user_list_view(request):
         'unread_messages_count': unread_messages_count, 
     }
     return render(request, 'booking/admin_user_list.html', context)
+
+# NEW VIEW ADDED BELOW
+@login_required
+def admin_create_staff_view(request):
+    if not request.user.is_superuser:
+        messages.error(request, "Access denied. Only superusers can create staff accounts.")
+        return redirect('booking:admin_user_list')
+    
+    # Placeholder: Replace this with your actual form/staff creation logic
+    messages.info(request, "Staff creation functionality is pending implementation or form import. Redirecting to user list.")
+    return redirect('booking:admin_user_list')
+
+@login_required
+def admin_delete_user_view(request, pk):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden("Access denied. Only superusers can delete user accounts.")
+
+    user_to_delete = get_object_or_404(User, pk=pk)
+
+    if user_to_delete == request.user:
+        messages.error(request, "You cannot delete your own account.")
+        return redirect('booking:admin_user_list')
+    
+    if request.method == 'POST':
+        username = user_to_delete.username
+        user_to_delete.delete()
+        messages.success(request, f"User account '{username}' successfully deleted.")
+        return redirect('booking:admin_user_list')
+
+    
+    unread_messages_count = UserMessage.objects.filter(
+        recipient=request.user, 
+        is_read=False
+    ).count()
+
+    context = {
+        'user_to_delete': user_to_delete,
+        'unread_messages_count': unread_messages_count, 
+    }
+    return render(request, 'booking/admin_user_confirm_delete.html', context)
 
 
 @login_required

@@ -26,6 +26,7 @@
                             <th scope="col" class="py-3">Role Status</th>
                             <th scope="col" class="py-3">Date Joined</th>
                             <th scope="col" class="py-3">Action</th>
+                            <th scope="col" class="py-3">Delete</th> 
                         </tr>
                     </thead>
                     <tbody>
@@ -56,6 +57,25 @@
                                 <button class="btn btn-sm btn-outline-secondary disabled" disabled>
                                     <i class="fas fa-ban me-1"></i> N/A
                                 </button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if user.is_superuser %}
+                                    <button class="btn btn-sm btn-secondary disabled" disabled title="Cannot delete Superusers">
+                                        <i class="fas fa-user-slash"></i> Self/Admin
+                                    </button>
+                                {% elif user.is_staff and not request.user.is_superuser %}
+                                    <button class="btn btn-sm btn-secondary disabled" disabled title="Only Superusers can delete staff">
+                                        <i class="fas fa-lock"></i> Restricted
+                                    </button>
+                                {% elif user == request.user %}
+                                    <button class="btn btn-sm btn-secondary disabled" disabled title="Cannot delete your own account">
+                                        <i class="fas fa-user-times"></i> You
+                                    </button>
+                                {% else %}
+                                    <a href="{% url 'booking:admin_delete_user' pk=user.pk %}" class="btn btn-sm btn-danger" title="Delete this user account">
+                                        <i class="fas fa-trash-alt me-1"></i> Delete
+                                    </a>
                                 {% endif %}
                             </td>
                         </tr>

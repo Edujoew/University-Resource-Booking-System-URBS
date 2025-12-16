@@ -1,0 +1,63 @@
+{% extends 'main.html' %}
+
+{% block title %}Confirm User Deletion{% endblock title %}
+
+{% block content %}
+<div class="container py-5">
+    
+    <header class="mb-5 text-center p-3 rounded-3" style="background-color: #ffe6e6; border: 1px solid #ff9999;">
+        <h1 class="display-5 fw-bolder text-danger">
+            <i class="fas fa-exclamation-triangle me-2"></i> Confirm User Deletion
+        </h1>
+        <p class="lead text-dark">You are about to permanently delete a user account.</p>
+    </header>
+
+    <div class="card shadow-lg border-0" style="background-color: #ffffff;">
+        <div class="card-body p-4">
+            <div class="alert alert-danger text-center p-4 mb-4" role="alert">
+                <p class="h4">
+                    Are you absolutely sure you want to delete the account for {{ user_to_delete.username }} (ID: {{ user_to_delete.pk }})?
+                </p>
+                <p class="mb-0">
+                    <i class="fas fa-hand-point-right me-2"></i> This action is:
+                    <span class="fw-bold">irreversible.</span> All associated data will be lost.
+                </p>
+            </div>
+
+            <h3 class="card-title mb-3 text-center text-dark fw-bold">User Details</h3>
+            <ul class="list-group list-group-flush mb-5 mx-auto" style="max-width: 500px;">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Username:
+                    <span class="fw-bold text-danger">{{ user_to_delete.username }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Email:
+                    <span class="text-muted">{{ user_to_delete.email }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Date Joined:
+                    <span class="text-muted">{{ user_to_delete.date_joined|date:"M d, Y H:i" }}</span>
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    Account Status:
+                    {% if user_to_delete.is_staff or user_to_delete.is_superuser %}
+                        <span class="badge bg-warning text-dark p-2">Staff/Admin</span>
+                    {% else %}
+                        <span class="badge bg-success p-2">Standard User</span>
+                    {% endif %}
+                </li>
+            </ul>
+
+            <form method="POST" action="{% url 'booking:admin_delete_user' pk=user_to_delete.pk %}" class="text-center">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger btn-lg me-3">
+                    <i class="fas fa-trash-alt me-2"></i> Permanently Delete
+                </button>
+                <a href="{% url 'booking:admin_user_list' %}" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-times-circle me-2"></i> Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

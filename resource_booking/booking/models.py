@@ -55,7 +55,6 @@ class Resource(models.Model):
         ordering = ['name']
         verbose_name = "Bookable Resource"
         verbose_name_plural = "Bookable Resources"
-        # 1. ADDED: Granular permissions for Resource management
         permissions = [
             ("can_create_resource", "Can create new resources"),
             ("can_delete_resource", "Can delete existing resources"),
@@ -125,9 +124,7 @@ class BookingRequest(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
 
-    purpose = models.TextField(
-        blank=True, 
-    )
+    purpose = models.TextField()
     
     status = models.CharField(
         max_length=10,
@@ -147,7 +144,6 @@ class BookingRequest(models.Model):
         ordering = ['start_time']
         verbose_name = "Booking Request"
         verbose_name_plural = "Booking Requests"
-        # 2. ADDED: Granular permission for booking review
         permissions = [
             ("can_review_booking", "Can approve or reject pending bookings"),
         ]

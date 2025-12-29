@@ -1,143 +1,129 @@
-{% extends "main.html" %}
-
-{% block content %}
+{% extends "main.html" %} {% block content %}
 <style>
-.admin-header-card {
+  .admin-header-card {
     background: linear-gradient(90deg, #dc3545, #ffc107);
     color: white;
     border-radius: 0.5rem;
-}
+  }
 
-.booking-item-card {
+  .booking-item-card {
     transition: transform 0.2s, box-shadow 0.2s;
     border-left: 5px solid #ffc107;
-}
+  }
 
-.booking-item-card:hover {
+  .booking-item-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
-}
+  }
 
-.badge-pending {
+  .badge-pending {
     background-color: #ffc107 !important;
     color: #343a40 !important;
     font-size: 0.9rem;
     padding: 0.5em 0.8em;
-}
+  }
 
-.btn-group-sm {
+  .btn-group-sm {
     display: flex;
-    gap: 0.5rem; 
-}
+    gap: 0.5rem;
+  }
 </style>
 
 <div class="container py-5">
-    
-    <div class="card admin-header-card shadow-lg mb-5">
-        <div class="card-body py-4">
-            <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    <h1 class="mb-1 fw-bold text-white">🚧 Pending Requests Review</h1>
-                    <p class="lead mb-0 text-white-75">
-                        You have {{ pending_bookings.count }} booking requests awaiting administrative approval.
-                    </p>
-                </div>
-                <i class="bi bi-clock-history display-4 opacity-75"></i>
-            </div>
+  <div class="card admin-header-card shadow-lg mb-5">
+    <div class="card-body py-4">
+      <div class="d-flex justify-content-between align-items-center">
+        <div>
+          <h1 class="mb-1 fw-bold text-white">🚧 Pending Requests Review</h1>
+          <p class="lead mb-0 text-white-75">
+            You have {{ pending_bookings.count }} booking requests awaiting administrative approval.
+          </p>
         </div>
+        <i class="bi bi-clock-history display-4 opacity-75"></i>
+      </div>
     </div>
-    
+  </div>
 
-    {% if pending_bookings %}
-       
-        <div class="row g-4">
-            {% for booking in pending_bookings %}
-            <div class="col-12">
-                <div class="card booking-item-card shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex w-100 justify-content-between align-items-start">
-                            <h5 class="mb-1 text-primary fw-bold fs-4">
-                                <i class="bi bi-tag-fill me-2 text-warning"></i> {{ booking.resource.name }} 
-                                <small class="text-muted fw-normal fs-6">({{ booking.resource.get_type_display }})</small>
-                            </h5>
-                            <span class="badge badge-pending fw-bold rounded-pill">{{ booking.status }}</span>
-                        </div>
+  {% if pending_bookings %}
+  <div class="row g-4">
+    {% for booking in pending_bookings %}
+    <div class="col-12">
+      <div class="card booking-item-card shadow-sm">
+        <div class="card-body p-4">
+          <div class="d-flex w-100 justify-content-between align-items-start">
+            <h5 class="mb-1 text-primary fw-bold fs-4">
+              <i class="bi bi-tag-fill me-2 text-warning"></i> {{ booking.resource.name }}
+              <small class="text-muted fw-normal fs-6">({{ booking.resource.get_type_display }})</small>
+            </h5>
+            <span class="badge badge-pending fw-bold rounded-pill">{{ booking.status }}</span>
+          </div>
 
-                        <p class="mb-3 mt-1">
-                            Requested by: <strong>{{ booking.user.username }}</strong> ({{ booking.user.email }})
-                        </p>
-                        
-                        {% if booking.purpose %}
-                            <div class="bg-light p-3 rounded mb-3 border-start border-warning border-4">
-                                <small class="text-muted d-block">Purpose:</small>
-                                <em>{{ booking.purpose|truncatechars:100 }}</em>
-                            </div>
-                        {% endif %}
+          <p class="mb-3 mt-1">
+            Requested by: <strong>{{ booking.user.username }}</strong> ({{ booking.user.email }})
+          </p>
 
+          {% if booking.purpose %}
+          <div class="bg-light p-3 rounded mb-3 border-start border-warning border-4">
+            <small class="text-muted d-block fw-bold text-uppercase" style="font-size: 0.75rem">Purpose of Booking:</small>
+            <p class="mb-0 text-dark">{{ booking.purpose }}</p>
+          </div>
+          {% else %}
+          <div class="bg-light p-2 rounded mb-3 border-start border-secondary border-4">
+            <small class="text-muted italic">No purpose provided.</small>
+          </div>
+          {% endif %}
 
-                        <div class="row border-top pt-3 align-items-center">
-                            
-                            <div class="col-6 col-md-3 mb-2">
-                                <small class="text-muted d-block">Start Time</small>
-                                <span class="fw-bold text-success">{{ booking.start_time|date:"D, M d, H:i" }}</span>
-                            </div>
-                            
-                            <div class="col-6 col-md-3 mb-2">
-                                <small class="text-muted d-block">End Time</small>
-                                <span class="fw-bold text-danger">{{ booking.end_time|date:"D, M d, H:i" }}</span>
-                            </div>
-                            
-                            <div class="col-6 col-md-3 mb-2">
-                                <small class="text-muted d-block">Cost Status</small>
-                                <span class="fw-bold text-dark">
-                                    {% if booking.resource.cost > 0 %}
-                                        KSH {{ booking.resource.cost|floatformat:2 }} / hour
-                                    {% else %}
-                                        Free
-                                    {% endif %}
-                                </span>
-                            </div>
-                            
-                            <div class="col-6 col-md-3 d-flex justify-content-end align-items-center mt-2 mt-md-0">
-                                {% if perms.booking.can_review_booking %}
-                                <div class="btn-group-sm w-100">
-                                    <form method="POST" action="{% url 'booking:admin_review_booking' pk=booking.pk %}" class="d-inline w-50">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="approve">
-                                        <button type="submit" class="btn btn-sm btn-success w-100" 
-                                                onclick="return confirm('Confirm APPROVE booking {{ booking.pk }}?');" title="Approve Booking">
-                                            <i class="bi bi-check-lg me-1"></i> Approve
-                                        </button>
-                                    </form>
-
-                                    <form method="POST" action="{% url 'booking:admin_review_booking' pk=booking.pk %}" class="d-inline w-50">
-                                        {% csrf_token %}
-                                        <input type="hidden" name="action" value="reject">
-                                        <button type="submit" class="btn btn-sm btn-danger w-100" 
-                                                onclick="return confirm('Confirm REJECT booking {{ booking.pk }}?');" title="Reject Booking">
-                                            <i class="bi bi-x-lg me-1"></i> Reject
-                                        </button>
-                                    </form>
-                                </div>
-                                {% else %}
-                                    <a href="{% url 'booking:modify_booking' booking.pk %}" class="btn btn-warning w-100 fw-bold">
-                                        <i class="bi bi-eye me-1"></i> View Details
-                                    </a>
-                                {% endif %}
-                            </div>
-                            
-                        </div>
-                    </div>
-                </div>
+          <div class="row border-top pt-3 align-items-center">
+            <div class="col-6 col-md-3 mb-2">
+              <small class="text-muted d-block">Start Time</small>
+              <span class="fw-bold text-success">{{ booking.start_time|date:"D, M d, H:i" }}</span>
             </div>
-            {% endfor %}
+
+            <div class="col-6 col-md-3 mb-2">
+              <small class="text-muted d-block">End Time</small>
+              <span class="fw-bold text-danger">{{ booking.end_time|date:"D, M d, H:i" }}</span>
+            </div>
+
+            <div class="col-6 col-md-3 mb-2">
+              <small class="text-muted d-block">Cost Status</small>
+              <span class="fw-bold text-dark">
+                {% if booking.resource.cost > 0 %} 
+                  KSH {{ booking.resource.cost|floatformat:2 }} / hour 
+                {% else %} 
+                  Free 
+                {% endif %}
+              </span>
+            </div>
+
+            <div class="col-6 col-md-3 d-flex justify-content-end align-items-center mt-2 mt-md-0">
+              {% if perms.booking.can_review_booking %}
+              <div class="btn-group-sm w-100">
+                <a href="{% url 'booking:admin_review_booking' booking.pk %}" class="btn btn-sm btn-success w-50" title="Review for Approval">
+                  <i class="bi bi-check-lg me-1"></i> Review
+                </a>
+
+                <a href="{% url 'booking:admin_reject_reason' booking.pk %}" class="btn btn-sm btn-danger w-50" title="Reject Booking">
+                  <i class="bi bi-x-lg me-1"></i> Reject
+                </a>
+              </div>
+              {% else %}
+              <a href="{% url 'booking:modify_booking' booking.pk %}" class="btn btn-warning w-100 fw-bold">
+                <i class="bi bi-eye me-1"></i> View Details
+              </a>
+              {% endif %}
+            </div>
+          </div>
         </div>
-    {% else %}
-        <div class="alert alert-success text-center shadow-sm py-5" role="alert">
-            <i class="bi bi-check-circle-fill display-4 mb-3"></i>
-            <h4 class="alert-heading fw-bold">All Clear!</h4>
-            <p>You currently have no pending booking requests that require your review or action.</p>
-        </div>
-    {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="alert alert-success text-center shadow-sm py-5" role="alert">
+    <i class="bi bi-check-circle-fill display-4 mb-3"></i>
+    <h4 class="alert-heading fw-bold">All Clear!</h4>
+    <p>You currently have no pending booking requests that require your review or action.</p>
+  </div>
+  {% endif %}
 </div>
 {% endblock content %}

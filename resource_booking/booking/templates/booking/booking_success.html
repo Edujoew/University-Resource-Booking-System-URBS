@@ -14,10 +14,15 @@
                 <div class="card-body">
                     {% if booking_status == 'APPROVED' %}
                         <h4 class="text-success">Confirmed!</h4>
-                        <p class="lead">Your resource has been successfully booked and APPROVED (no payment required).</p>
+                        <p class="lead">Your resource has been successfully booked and APPROVED.</p>
                     {% elif booking_status == 'PENDING' %}
-                        <h4 class="text-warning">Pending Payment</h4>
-                        <p class="lead">Your booking has been reserved and is currently PENDING payment. Please complete payment to confirm your booking.</p>
+                        {% if is_free %}
+                            <h4 class="text-warning">Pending Admin Approval</h4>
+                            <p class="lead">Your request for <strong>{{ booking.resource.name }}</strong> has been submitted. Since this is a free resource, it is now awaiting review by our administrators.</p>
+                        {% else %}
+                            <h4 class="text-warning">Pending Payment</h4>
+                            <p class="lead">Your booking has been reserved and is currently PENDING payment. Please complete payment to confirm your booking.</p>
+                        {% endif %}
                     {% else %}
                         <h4 class="text-info">Request Submitted</h4>
                         <p class="lead">Your booking request has been submitted successfully.</p>

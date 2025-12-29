@@ -3,15 +3,43 @@
 {% block title %}My Inbox{% endblock title %}
 
 {% block content %}
+<style>
+    .message-body-expanded {
+        white-space: pre-wrap;      
+        word-wrap: break-word;     
+        overflow-wrap: break-word;
+        line-height: 1.6;
+    }
+
+    .message-card {
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .message-card:hover {
+        background-color: #f8f9fa !important;
+    }
+
+    /* Unread messages are bold; read messages are normal weight */
+    .unread-bold {
+        font-weight: 800 !important;
+        color: #212529 !important;
+    }
+    
+    .read-normal {
+        font-weight: 400 !important;
+        color: #6c757d !important;
+    }
+</style>
+
 <div class="container py-5">
     <header class="mb-5 border-bottom pb-3">
         <h1 class="display-4 fw-bolder text-dark">
             <i class="fas fa-inbox text-primary me-2"></i> My Inbox
             {% if unread_messages_count > 0 %}
-                <span class="badge bg-danger rounded-pill fs-6 ms-2 py-2 px-3 shadow-sm">{{ unread_messages_count }} New</span>
+                <span class="badge bg-danger rounded-pill fs-6 ms-2 py-2 px-3 shadow-sm" id="unread-count-badge">{{ unread_messages_count }} New</span>
             {% endif %}
         </h1>
-        <p class="lead text-secondary">View messages and announcements received from the system administrators and staff.</p>
     </header>
 
     <div class="card shadow-lg border-0 rounded-4">
@@ -19,69 +47,88 @@
             {% if messages %}
             <div class="list-group list-group-flush">
                 {% for message in messages %}
-                <a href="#" class="list-group-item list-group-item-action py-4 px-4 border-bottom 
-                    {% if not message.is_read %}
-                        bg-white fw-bold shadow-sm-hover message-unread border-start border-5 border-primary
-                    {% else %}
-                        list-group-item-light-hover
-                    {% endif %}
-                    "
-                    aria-current="true"
+                <div class="list-group-item message-card py-4 px-4 border-bottom {% if not message.is_read %}border-start border-5 border-primary{% endif %}"
+                    id="message-container-{{ message.pk }}"
+                    data-bs-toggle="collapse" 
+                    data-bs-target="#messageDetail{{ message.pk }}"
+                    aria-expanded="false"
+                    onclick="markAsRead('{{ message.pk }}')"
                 >
                     <div class="d-flex w-100 align-items-start justify-content-between">
-                        
-                        <div class="flex-grow-1 me-3">
-                            <h5 class="mb-1 text-truncate 
-                                {% if not message.is_read %}
-                                    text-dark
-                                {% else %}
-                                    text-secondary
-                                {% endif %}
-                            ">
-                                <i class="fas fa-envelope-
-                                    {% if not message.is_read %}
-                                        open-text text-primary
-                                    {% else %}
-                                        square
-                                    {% endif %}
-                                me-2"></i> 
+                        <div class="flex-grow-1 me-3 overflow-hidden">
+                            <h5 id="subject-{{ message.pk }}" class="mb-1 text-truncate {% if not message.is_read %}unread-bold{% else %}read-normal{% endif %}">
                                 {{ message.subject }}
-                                {% if not message.is_read %}
-                                    <span class="badge bg-warning text-dark ms-2">New</span>
-                                {% endif %}
                             </h5>
-                            <p class="mb-1 text-truncate 
-                                {% if not message.is_read %}
-                                    text-dark
-                                {% else %}
-                                    text-muted
-                                {% endif %}
-                            ">{{ message.body }}</p>
-                            <small class="text-secondary">From: {{ message.sender.username|default:"System Admin"|title }}</small>
+
+                            <p id="preview-{{ message.pk }}" class="mb-1 text-truncate collapse show {% if not message.is_read %}unread-bold{% else %}read-normal{% endif %}">
+                                {{ message.body }}
+                            </p>
+
+                            <div class="collapse mt-3" id="messageDetail{{ message.pk }}">
+                                <div class="message-body-expanded p-3 bg-light rounded-3 border fw-normal text-dark">
+                                    {{ message.body }}
+                                </div>
+                            </div>
+
+                            <small class="text-secondary d-block mt-2">
+                                {% if message.sender.is_superuser %}From: Admin
+                                {% elif message.sender.is_staff %}Staff: {{ message.sender.get_full_name|default:message.sender.username|title }}
+                                {% else %}From: {{ message.sender.username|title }}{% endif %}
+                            </small>
                         </div>
 
                         <small class="text-end text-muted flex-shrink-0 pt-1">
-                            <i class="fas fa-clock me-1"></i> {{ message.sent_at|date:"M d, Y" }}
+                            {{ message.sent_at|date:"M d, Y" }}
                             <div class="text-sm mt-1">{{ message.sent_at|date:"H:i" }}</div>
                         </small>
                     </div>
-                </a>
+                </div>
                 {% endfor %}
             </div>
             {% else %}
-            <div class="alert alert-info text-center p-5 m-4 border-0 rounded-3" role="alert">
-                <i class="fas fa-box-open fa-3x mb-3 text-info"></i> 
-                <h4 class="alert-heading">Inbox Cleared!</h4>
-                <p class="mb-0 lead">Your message box is currently empty. You will receive important notifications and announcements here from staff.</p>
+            <div class="text-center p-5">
+                <p class="lead">Your inbox is empty.</p>
             </div>
             {% endif %}
         </div>
     </div>
-    
-    <div class="mt-5 text-center">
-        <a href="{% url 'booking:home' %}" class="btn btn-outline-secondary btn-lg">
-            <i class="fas fa-tachometer-alt me-2"></i> Go to Dashboard
-        </a>
-    </div>
 </div>
+
+<script>
+    // Toggle preview and full message
+    document.querySelectorAll('.collapse').forEach(el => {
+        el.addEventListener('show.bs.collapse', function () {
+            const id = this.id.replace('messageDetail', '');
+            document.getElementById('preview-' + id).classList.remove('show');
+        });
+        el.addEventListener('hide.bs.collapse', function () {
+            const id = this.id.replace('messageDetail', '');
+            document.getElementById('preview-' + id).classList.add('show');
+        });
+    });
+
+    // Function to mark message as read in the database
+    function markAsRead(messageId) {
+        const subject = document.getElementById('subject-' + messageId);
+        const preview = document.getElementById('preview-' + messageId);
+
+        // Only proceed if it's currently unread (bold)
+        if (subject.classList.contains('unread-bold')) {
+            fetch(`/booking/messages/mark-read/${messageId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            }).then(response => {
+                if (response.ok) {
+                    // Remove bold classes immediately for visual feedback
+                    subject.classList.replace('unread-bold', 'read-normal');
+                    preview.classList.replace('unread-bold', 'read-normal');
+                    document.getElementById('message-container-' + messageId).classList.remove('border-primary', 'border-5', 'border-start');
+                }
+            });
+        }
+    }
+</script>
 {% endblock content %}

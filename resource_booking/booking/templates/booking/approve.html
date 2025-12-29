@@ -1,0 +1,61 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="card shadow-lg mx-auto" style="max-width: 650px;">
+        
+        {% if booking.resource.cost > 0 and booking.payment_status != 'Completed' %}
+            <div class="card-header bg-warning text-dark py-3">
+                <h4 class="mb-0"><i class="bi bi-exclamation-triangle-fill me-2"></i> Payment Required</h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="mb-4 text-start">
+                    <p class="lead mb-1">This resource requires payment:</p>
+                    <h3 class="text-primary fw-bold">{{ booking.resource.name }}</h3>
+                    <p class="text-muted">Requested by {{ booking.user.username }} ({{ booking.user.email }})</p>
+                </div>
+
+                <div class="alert alert-info border-0 shadow-sm text-start mb-4">
+                    <i class="bi bi-info-circle-fill me-2"></i>
+                    <strong>Policy:</strong> Send a notification to the user stating that this booking will be <strong>rejected</strong> if payment is not confirmed within <strong>24 hours</strong>.
+                </div>
+                
+                <form method="POST" action="{% url 'booking:admin_review_booking' booking.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="send_payment_warning">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-warning btn-lg fw-bold">
+                            <i class="bi bi-envelope-paper me-2"></i> Send 24hr Payment Warning
+                        </button>
+                        <a href="{% url 'booking:admin_pending_dashboard' %}" class="btn btn-link text-muted">Go Back</a>
+                    </div>
+                </form>
+            </div>
+
+        {% else %}
+            <div class="card-header bg-success text-white py-3">
+                <h4 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i> Confirm Final Approval</h4>
+            </div>
+            <div class="card-body p-4 text-center">
+                <div class="mb-4">
+                    <p class="lead mb-1">Approve booking for:</p>
+                    <h3 class="text-success fw-bold">{{ booking.resource.name }}</h3>
+                    <p class="text-muted">A confirmation email will be sent to {{ booking.user.email }}</p>
+                </div>
+
+                <form method="POST" action="{% url 'booking:admin_review_booking' booking.pk %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="approve">
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg fw-bold shadow">
+                            <i class="bi bi-check2-circle me-2"></i> Confirm & Approve
+                        </button>
+                        <a href="{% url 'booking:admin_pending_dashboard' %}" class="btn btn-outline-secondary">Cancel and Go Back</a>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}

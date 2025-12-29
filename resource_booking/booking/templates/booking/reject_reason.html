@@ -1,0 +1,32 @@
+{% extends "main.html" %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">Reject Booking #{{ booking.pk }}</h4>
+                </div>
+                <div class="card-body">
+                    <p>Resource: <strong>{{ booking.resource.name }}</strong></p>
+                    <p>User: <strong>{{ booking.user.username }}</strong></p>
+                    <hr>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="reject_reason" class="form-label fw-bold">Reason for Rejection</label>
+                            <textarea name="reject_reason" id="reject_reason" class="form-control" rows="5" placeholder="Explain why the booking is being rejected..." required></textarea>
+                            <div class="form-text text-muted">This message will be sent directly to the user's inbox.</div>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'booking:admin_pending_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-danger">Confirm Rejection & Send Message</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

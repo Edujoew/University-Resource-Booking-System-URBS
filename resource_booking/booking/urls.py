@@ -38,4 +38,8 @@ urlpatterns = [
     path('booking/admin/send-message/', views.admin_send_message_view, name='admin_send_message'),
 
     path('/admin/pending/review/<int:pk>/', views.admin_review_booking, name='admin_review_booking'),
+    path('chat-assistant/', views.chat_assistant, name='chat_assistant'),
+
+    path('requests/reject/<int:pk>/', views.admin_reject_reason_view, name='admin_reject_reason'),
+    path('messages/mark-read/<int:pk>/', views.mark_message_as_read, name='mark_as_read'),
 ]

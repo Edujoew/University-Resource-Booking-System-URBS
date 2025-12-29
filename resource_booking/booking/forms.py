@@ -59,6 +59,9 @@ class BookingRequestForm(forms.ModelForm):
             choices.append((resource.id, label))
         
         resource_field.choices = choices
+
+        # Set purpose as required by default for new bookings
+        self.fields['purpose'].required = True
         
         if is_admin:
             self.fields['resource'].disabled = True
@@ -66,6 +69,8 @@ class BookingRequestForm(forms.ModelForm):
             self.fields['end_time'].disabled = True
             self.fields['purpose'].disabled = True
             self.fields['status'].required = True
+            # Admin doesn't need to provide purpose when reviewing
+            self.fields['purpose'].required = False
             
         elif is_owner:
             self.fields['status'].disabled = True
@@ -76,7 +81,9 @@ class BookingRequestForm(forms.ModelForm):
                 self.fields['start_time'].disabled = True
                 self.fields['end_time'].disabled = True
                 self.fields['purpose'].disabled = True
+                self.fields['purpose'].required = False
         
+        # Cleanup requirements for all disabled fields
         if self.fields.get('resource') and self.fields['resource'].disabled:
             self.fields['resource'].required = False
         if self.fields.get('start_time') and self.fields['start_time'].disabled:
@@ -199,10 +206,8 @@ class UserRegistrationForm(UserCreationForm):
 
 class UserMessageForm(forms.ModelForm):
     
-    
     class Meta:
         model = UserMessage
-        
         
         fields = ['subject', 'body']
         
